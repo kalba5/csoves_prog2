@@ -58,6 +58,8 @@ public:
     pair<int, int> getCoord();
     Types getType() const;
     void printDirs();
+
+    virtual void printIt() const = 0;
 };
 
 

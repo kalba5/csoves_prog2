@@ -7,3 +7,10 @@ bool Valve::isOpen() {
 void Valve::setValve(bool val) {
     open = val;
 }
+
+void Valve::printIt() const {
+    cout << "Valve_dir:" << endl;
+    for(auto it: dirs){
+        cout << it << endl;
+    }
+}

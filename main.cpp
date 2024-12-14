@@ -12,7 +12,7 @@
 using namespace std;
 
 
-void printAllPipeElements(vector<SimplePipe*> simplePipes, vector<Valve*> valves, vector<Source*> sources, vector<Sink*> sinks){
+void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valves, vector<PipeIdom*> sources, vector<PipeIdom*> sinks){
     for (int i = 0; i < simplePipes.size(); ++i) {
         simplePipes[i]->printIt();
     }
@@ -36,10 +36,10 @@ int main() {
 ///Fejléc kötelező és az adatok sorrendje nem változhat a (data.csv)-hez képest
 
 //Ezekben a vectorokban vannak eltárolva a rendelkezésre álló idomok.
-    vector<SimplePipe*> simplePipes;
-    vector<Valve*> valves;
-    vector<Source*> sources;
-    vector<Sink*> sinks;
+    vector<PipeIdom*> simplePipes;
+    vector<PipeIdom*> valves;
+    vector<PipeIdom*> sources;
+    vector<PipeIdom*> sinks;
 
 //BEOLVASAS ELEJE
     ifstream file("data.csv");

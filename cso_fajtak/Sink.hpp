@@ -15,15 +15,7 @@ public:
     void setStatus(bool);
     string getColor();
 
-
-    void printIt(){
-        cout << "Sink_color: " << color << endl;
-        cout << "x: " << coord.first << "  y:" << coord.second << endl;
-        cout << "Sink_dir:" << endl;
-        for(auto it: dirs){
-            cout << it << endl;
-        }
-    }
+    void printIt() const override;
 };
 
 

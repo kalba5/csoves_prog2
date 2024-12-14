@@ -8,12 +8,7 @@ class SimplePipe: public PipeIdom {
 public:
     SimplePipe(set<Directions> dirs): PipeIdom(dirs){}
 
-    void printIt(){
-        cout << "SimplePipe_dir:" << endl;
-        for(auto it: dirs){
-            cout << it << endl;
-        }
-    }
+    void printIt() const override;
 };
 
 

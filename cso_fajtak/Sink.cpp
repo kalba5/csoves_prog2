@@ -15,3 +15,12 @@ void Sink::setStatus(bool status) {
 string Sink::getColor() {
     return color;
 }
+
+void Sink::printIt() const {
+    cout << "Sink_color: " << color << endl;
+    cout << "x: " << coord.first << "  y:" << coord.second << endl;
+    cout << "Sink_dir:" << endl;
+    for(auto it: dirs){
+        cout << it << endl;
+    }
+}

@@ -18,14 +18,7 @@ public:
 
     string getColor();
 
-    void printIt(){
-        cout << "Source_color: " << color << endl;
-        cout << "x: " << coord.first << "  y:" << coord.second << endl;
-        cout << "Source_dir:" << endl;
-        for(auto it: dirs){
-            cout << it << endl;
-        }
-    }
+    void printIt() const override;
 };
 
 

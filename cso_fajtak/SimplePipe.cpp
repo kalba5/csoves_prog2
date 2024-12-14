@@ -3,3 +3,10 @@
 //
 
 #include "SimplePipe.hpp"
+
+void SimplePipe::printIt() const {
+    cout << "SimplePipe_dir:" << endl;
+    for(auto it: dirs){
+        cout << it << endl;
+    }
+}

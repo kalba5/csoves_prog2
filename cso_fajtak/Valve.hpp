@@ -16,12 +16,7 @@ public:
     bool isOpen();
     void setValve(bool);
 
-    void printIt(){
-        cout << "Valve_dir:" << endl;
-        for(auto it: dirs){
-            cout << it << endl;
-        }
-    }
+    void printIt() const override;
 };
 
 
