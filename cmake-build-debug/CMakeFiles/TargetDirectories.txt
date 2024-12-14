@@ -1,0 +1,3 @@
+C:/programming/susu_omlesztve/sebo_szarjai/csovesProg2/cmake-build-debug/CMakeFiles/csovesProg2.dir
+C:/programming/susu_omlesztve/sebo_szarjai/csovesProg2/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/programming/susu_omlesztve/sebo_szarjai/csovesProg2/cmake-build-debug/CMakeFiles/rebuild_cache.dir

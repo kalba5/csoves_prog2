@@ -1,0 +1,26 @@
+# ninja log v5
+11	551	7541888300347446	CMakeFiles/csovesProg2.dir/cso_fajtak/Sink.cpp.obj	bcc4ea15de2e92b5
+6	557	7541888300417445	CMakeFiles/csovesProg2.dir/cso_fajtak/Source.cpp.obj	3796f32c181c1c32
+26	1212	7541887614391495	CMakeFiles/csovesProg2.dir/cso_fajtak/PipeIdom.cpp.obj	d062c4cd54c7c914
+4	907	7551936372311499	CMakeFiles/csovesProg2.dir/main.cpp.obj	8005b4a026e8c722
+908	1070	7551936373931502	csovesProg2.exe	139fe248a1a3b114
+37	688	7541887609144795	CMakeFiles/csovesProg2.dir/Pipe.cpp.obj	2b9bb3a7a22c178e
+46	1034	7541887612596172	CMakeFiles/csovesProg2.dir/cso_fajtak/SimplePipe.cpp.obj	62ae4094884c121d
+19	1075	7541887613046163	CMakeFiles/csovesProg2.dir/cso_fajtak/Valve.cpp.obj	d5268cdbb95f2178
+3	1093	7551995740467221	CMakeFiles/csovesProg2.dir/main.cpp.obj	8005b4a026e8c722
+3	696	7551997157954809	CMakeFiles/csovesProg2.dir/Simulation.cpp.obj	c31c633a04d79ad0
+697	916	7551997160129402	csovesProg2.exe	bac79ec0b17a0d9c
+68	1224	7553661328610782	CMakeFiles/csovesProg2.dir/cso_fajtak/SimplePipe.cpp.obj	62ae4094884c121d
+48	1269	7553661329070801	CMakeFiles/csovesProg2.dir/cso_fajtak/Valve.cpp.obj	d5268cdbb95f2178
+58	1339	7553661329750815	CMakeFiles/csovesProg2.dir/cso_fajtak/Source.cpp.obj	3796f32c181c1c32
+86	1343	7553661329810786	CMakeFiles/csovesProg2.dir/cso_fajtak/Sink.cpp.obj	bcc4ea15de2e92b5
+76	1367	7553661330050761	CMakeFiles/csovesProg2.dir/cso_fajtak/PipeIdom.cpp.obj	d062c4cd54c7c914
+34	1963	7553661336010896	CMakeFiles/csovesProg2.dir/main.cpp.obj	8005b4a026e8c722
+3	1191	7553661664152649	CMakeFiles/csovesProg2.dir/Simulation.cpp.obj	c31c633a04d79ad0
+1192	1613	7553661668352348	csovesProg2.exe	bac79ec0b17a0d9c
+3	1175	7553670052042350	CMakeFiles/csovesProg2.dir/main.cpp.obj	8005b4a026e8c722
+1176	1468	7553670054952719	csovesProg2.exe	bac79ec0b17a0d9c
+4	1010	7553670271845838	CMakeFiles/csovesProg2.dir/main.cpp.obj	8005b4a026e8c722
+1011	1310	7553670274834525	csovesProg2.exe	bac79ec0b17a0d9c
+3	1199	7553675262400289	CMakeFiles/csovesProg2.dir/main.cpp.obj	8005b4a026e8c722
+1199	1520	7553675265594813	csovesProg2.exe	bac79ec0b17a0d9c

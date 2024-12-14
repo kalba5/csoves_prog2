@@ -1,0 +1,46 @@
+//1. sor: sima csövek
+//2. sor: csapok
+//3. sor: források
+Idomok:
+sima csövek: 2UL,
+források: 1R
+
+
+TYPE,COUNT,DIRECTIONS,COLOR,X,Y
+simplePipe,2,UL,,,
+simplePipe,3,D,,,
+valve, 3, UD
+valve, 1, ULDR
+source, 1, R, GREEN, 0, 0
+source, 1, L, RED, 3, 3
+sink, 1, L, GREEN, 4, 4
+
+
+Elindul a source-tól
+megnézi hogy melyik oldalán van nyílás (végigiterál a dirs set-en)
+megpróbál mindegyikhez illeszteni egy random elemet a simplePipes-ból és a valves-ból. (nem random, hogy később ne legyen uaz a sorrend)
+    ezeket kiveszi a vectorból és valami másikba rakja.
+Megnézi a már felhasznált elemeket és amelyikhez még nem próbált meg illeszteni ahoz próbál legközelebb, ha nincs ilyen akkor
+    megnézi hogy a sink-hez van-e már illesztve valami
+        ha igen, megnézi hogy van e valahol kifolyás a pályára
+            kész / hiba-->újra
+
+
+Feltételek:
+    - nem találkozhat a csövekben 2 különböző színű folyadék
+    - nem folyhat ki a pályára folyadék
+    - user inputon be kell kérni hogy az adott menetben melyik szín/színek legyenek aktívak
+
+Engedmények:
+    - inaktív forrás elárasztható más színű folyadékkal
+    - inaktív nyelő elárasztható más színű folyadékkal
+
+Fázis:
+    - a gép találja ki, hogy hány fázis kell
+    - pl: a 2. példában ha a user azt adja meg hogy a piros és a zöld is legyen aktív
+          akkor 2 fázis kell mert egyszer ezek a csapok vannak megnyitva másszor meg a másikak
+
+
+
+
+
