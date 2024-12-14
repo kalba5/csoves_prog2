@@ -12,7 +12,7 @@ void Sink::setStatus(bool status) {
     status = status;
 }
 
-string Sink::getColor() {
+string Sink::getColor() const{
     return color;
 }
 

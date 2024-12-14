@@ -13,7 +13,7 @@ public:
 
     bool isActive();
     void setStatus(bool);
-    string getColor();
+    string getColor() const override;
 
     void printIt() const override;
 };

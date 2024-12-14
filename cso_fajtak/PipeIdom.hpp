@@ -60,6 +60,7 @@ public:
     void printDirs();
 
     virtual void printIt() const = 0;
+    virtual string getColor() const = 0;
 };
 
 

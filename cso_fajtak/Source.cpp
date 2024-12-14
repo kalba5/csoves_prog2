@@ -8,7 +8,7 @@ void Source::setStatus(bool _status) {
     status = _status;
 }
 
-string Source::getColor() {
+string Source::getColor() const{
     return color;
 }
 

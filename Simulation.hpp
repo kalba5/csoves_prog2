@@ -14,28 +14,10 @@ using namespace std;
 
 class Simulation {
 private:
-    class Element{
-        bool isDoubleTurn = false;
-        bool isOpen = true;
-        Types type;
-        set<Directions> dirs;
-        pair<int, int> coord;
-    public:
-        Element(Types _type, set<Directions> _dirs): type(_type), dirs(_dirs) {}
-        pair<int, int> getCoord(){
-            return coord;
-        }
-
-        set<Directions> getDirs(){
-            return dirs;
-        }
-    };
-
-
-    vector<SimplePipe*> simplePipes;
-    vector<Valve*> valves;
-    vector<Source*> sources;
-    vector<Sink*> sinks;
+    vector<PipeIdom*> simplePipes;
+    vector<PipeIdom*> valves;
+    vector<PipeIdom*> sources;
+    vector<PipeIdom*> sinks;
 
     //Tfh forrásból és nyelőből sem lehet 2 azonos színű
     Source* greenSource;
@@ -52,12 +34,12 @@ private:
 
 
     void searchPath();
-    bool isConnectedToSink(vector<Element*>, pair<int, int>, Directions);
-    bool sinkConnections(const vector<Element*>&, Sink*);
+    bool isConnectedToSink(vector<PipeIdom*>, pair<int, int>, Directions);
+    bool sinkConnections(const vector<PipeIdom*>&, PipeIdom*);
 
 
 public:
-    Simulation(vector<SimplePipe*>, vector<Valve*>, vector<Source*>, vector<Sink*>);
+    Simulation(vector<PipeIdom*>, vector<PipeIdom*>, vector<PipeIdom*>, vector<PipeIdom*>);
 
     void getSolution(){};
 };

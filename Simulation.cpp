@@ -1,65 +1,60 @@
 #include "Simulation.hpp"
 
-Simulation::Simulation(vector<SimplePipe *> sp, vector<Valve *> va, vector<Source *> so, vector<Sink*> si) {
+Simulation::Simulation(vector<PipeIdom*> sp, vector<PipeIdom*> va, vector<PipeIdom*> so, vector<PipeIdom*> si) {
     simplePipes = sp;
     valves = va;
     sources = so;
     sinks = si;
     for (auto & i : so) {
         if (i->getColor() == "GREEN"){
-            greenSource = i;
+            greenSource = dynamic_cast<Source *>(i);
         }
         else if(i->getColor() == "BLUE"){
-            blueSource = i;
+            blueSource = dynamic_cast<Source *>(i);
         }
         else if(i->getColor() == "RED"){
-            redSource = i;
+            redSource = dynamic_cast<Source *>(i);
         }
         else if(i->getColor() == "YELLOW"){
-            yellowSource = i;
+            yellowSource = dynamic_cast<Source *>(i);
         }
         else if(i->getColor() == "PURPLE"){
-            purpleSource = i;
+            purpleSource = dynamic_cast<Source *>(i);
         }
     }
     for (auto & i : si) {
         if (i->getColor() == "GREEN"){
-            greenSink = i;
+            greenSink = dynamic_cast<Sink *>(i);
         }
         else if(i->getColor() == "BLUE"){
-            blueSink = i;
+            blueSink = dynamic_cast<Sink *>(i);
         }
         else if(i->getColor() == "RED"){
-            redSink = i;
+            redSink = dynamic_cast<Sink *>(i);
         }
         else if(i->getColor() == "YELLOW"){
-            yellowSink = i;
+            yellowSink = dynamic_cast<Sink *>(i);
         }
         else if(i->getColor() == "PURPLE"){
-            purpleSink = i;
+            purpleSink = dynamic_cast<Sink *>(i);
         }
     }
 }
 
 
 void Simulation::searchPath() {
-    vector<vector<Element>> votma;
+    vector<vector<PipeIdom>> votma;
     bool foundIt = false;
 
 
 
     while(!foundIt) {
         //Inicializalja az alap cuccokat. todo: Ezt nem így kéne mert így nagyon lassú de most jobb nem jutott eszembe
-        vector<Element*> elements;  //azok a simplePipe-ok és valve-ok vannak benne amik még nincsenek felhasználva
-        vector<Element*> grid;  //használatban lévő elemek todo: szerintem felesleges bonyolítás lenne mátrixban tárolni
-        for (auto &i: simplePipes) {
-            Element *element = new Element(i->getType(), i->getDirs());
-            elements.push_back(element);
-        }
-        for (auto &i: valves) {
-            Element *element = new Element(i->getType(), i->getDirs());
-            elements.push_back(element);
-        }
+        vector<PipeIdom*> elements;  //azok a simplePipe-ok és valve-ok vannak benne amik még nincsenek felhasználva
+        vector<PipeIdom*> grid;  //használatban lévő elemek todo: szerintem felesleges bonyolítás lenne mátrixban tárolni
+
+        elements.insert(elements.end(), simplePipes.begin(), simplePipes.end());
+        elements.insert(elements.end(), valves.begin(), valves.end());
 
 
 
@@ -88,7 +83,7 @@ void Simulation::searchPath() {
 ///isConnectedToSink akkor tér vissza igazzal ha a kapott coordinátán létezik element\n
 /// és annak a dirs-e tartalmaz olyat amit kapott paraméterként a fv.
 
-bool Simulation::isConnectedToSink(vector<Element *> grid, pair<int, int> lmntCoord, Directions lmntDir) {
+bool Simulation::isConnectedToSink(vector<PipeIdom*> grid, pair<int, int> lmntCoord, Directions lmntDir) {
     for (auto &item: grid) {
         if(item->getCoord() == lmntCoord and item->getDirs().contains(lmntDir)){
             return true;
@@ -98,7 +93,7 @@ bool Simulation::isConnectedToSink(vector<Element *> grid, pair<int, int> lmntCo
 }
 
 //todo: tesztelni kéne mert nem fix hogy jó
-bool Simulation::sinkConnections(const vector<Element *>& grid, Sink* sinkItem) {
+bool Simulation::sinkConnections(const vector<PipeIdom*>& grid, PipeIdom* sinkItem) {
     ///true  --> mindegyik dir-jére kapcsolódik element \n
     ///false --> van olyan dir-je amire nem kapcsolódik element
     pair<int, int> sinkCoord = sinkItem->getCoord();
