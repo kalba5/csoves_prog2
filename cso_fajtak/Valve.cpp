@@ -14,3 +14,7 @@ void Valve::printIt() const {
         cout << it << endl;
     }
 }
+
+string Valve::getColor() const {
+    return std::string();
+}

@@ -10,3 +10,7 @@ void SimplePipe::printIt() const {
         cout << it << endl;
     }
 }
+
+string SimplePipe::getColor() const {
+    return std::string();
+}

@@ -17,6 +17,8 @@ public:
     void setValve(bool);
 
     void printIt() const override;
+
+    string getColor() const override;
 };
 
 

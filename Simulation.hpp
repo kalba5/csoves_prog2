@@ -34,8 +34,10 @@ private:
 
 
     void searchPath();
-    bool isConnectedToSink(vector<PipeIdom*>, pair<int, int>, Directions);
-    bool sinkConnections(const vector<PipeIdom*>&, PipeIdom*);
+    bool isIn(vector<PipeIdom*> inThat, pair<int,int> onThatCoord);
+    bool haveThatDirection(PipeIdom* lmnt, Directions dir);
+    bool isConnectedTo(vector<PipeIdom*> grid, pair<int, int> lmntCoord, Directions lmntDir);
+    bool isAllConnected(const vector<PipeIdom*> &grid, PipeIdom *sinkItem);
 
 
 public:

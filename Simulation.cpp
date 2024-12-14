@@ -58,13 +58,12 @@ void Simulation::searchPath() {
 
 
 
-
         //ha nincs elvarratlan szál
         //ÉS ha csatlakozik valami mindegyik sink mindegyik végére
         bool isSinksOk = true;
         //Megnézi mindegyik sink-et
         for (auto &sinkItem: sinks) {
-            if(!sinkConnections(grid, sinkItem)){
+            if(!isAllConnected(grid, sinkItem)){
                 isSinksOk = false;
                 break;
             }
@@ -80,10 +79,10 @@ void Simulation::searchPath() {
 
 }
 
-///isConnectedToSink akkor tér vissza igazzal ha a kapott coordinátán létezik element\n
+///isConnectedTo akkor tér vissza igazzal ha a kapott coordinátán létezik element\n
 /// és annak a dirs-e tartalmaz olyat amit kapott paraméterként a fv.
 
-bool Simulation::isConnectedToSink(vector<PipeIdom*> grid, pair<int, int> lmntCoord, Directions lmntDir) {
+bool Simulation::isConnectedTo(vector<PipeIdom*> grid, pair<int, int> lmntCoord, Directions lmntDir) {
     for (auto &item: grid) {
         if(item->getCoord() == lmntCoord and item->getDirs().contains(lmntDir)){
             return true;
@@ -92,8 +91,7 @@ bool Simulation::isConnectedToSink(vector<PipeIdom*> grid, pair<int, int> lmntCo
     return false;
 }
 
-//todo: tesztelni kéne mert nem fix hogy jó
-bool Simulation::sinkConnections(const vector<PipeIdom*>& grid, PipeIdom* sinkItem) {
+bool Simulation::isAllConnected(const vector<PipeIdom*>& grid, PipeIdom* sinkItem) {
     ///true  --> mindegyik dir-jére kapcsolódik element \n
     ///false --> van olyan dir-je amire nem kapcsolódik element
     pair<int, int> sinkCoord = sinkItem->getCoord();
@@ -107,34 +105,50 @@ bool Simulation::sinkConnections(const vector<PipeIdom*>& grid, PipeIdom* sinkIt
     for (auto dirs_i: sinkDirs) {
         switch (dirs_i) {
             case RIGHT:
-                right = isConnectedToSink(grid, pair<int, int>(sinkCoord.first, sinkCoord.second+1), LEFT);
+                right = isConnectedTo(grid, pair<int, int>(sinkCoord.first, sinkCoord.second + 1), LEFT);
                 if(!right){
                     return false;
                 }
                 break;
             case UP:
-                up = isConnectedToSink(grid, pair<int, int>(sinkCoord.first-1, sinkCoord.second), DOWN);
+                up = isConnectedTo(grid, pair<int, int>(sinkCoord.first - 1, sinkCoord.second), DOWN);
                 if(!up){
                     return false;
                 }
                 break;
             case LEFT:
-                left = isConnectedToSink(grid, pair<int, int>(sinkCoord.first, sinkCoord.second-1), RIGHT);
+                left = isConnectedTo(grid, pair<int, int>(sinkCoord.first, sinkCoord.second - 1), RIGHT);
                 if(!left){
                     return false;
                 }
                 break;
             case DOWN:
-                down = isConnectedToSink(grid, pair<int, int>(sinkCoord.first+1, sinkCoord.second), UP);
+                down = isConnectedTo(grid, pair<int, int>(sinkCoord.first + 1, sinkCoord.second), UP);
                 if(!down){
                     return false;
                 }
                 break;
         }
     }
-
-
     return true;
+}
+
+bool Simulation::isIn(vector<PipeIdom *> inThat, pair<int, int> onThatCoord) {
+    for (auto& item: inThat) {
+        if(item->getCoord() == onThatCoord){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Simulation::haveThatDirection(PipeIdom *lmnt, Directions dir) {
+    for (auto d: lmnt->getDirs()) {
+        if(d == dir){
+            return true;
+        }
+    }
+    return false;
 }
 
 

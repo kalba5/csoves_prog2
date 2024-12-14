@@ -9,6 +9,8 @@ public:
     SimplePipe(set<Directions> dirs): PipeIdom(dirs){}
 
     void printIt() const override;
+
+    string getColor() const override;
 };
 
 

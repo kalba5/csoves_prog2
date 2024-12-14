@@ -39,4 +39,9 @@ void PipeIdom::printDirs() {
     }
 }
 
+void PipeIdom::setCoord(int a, int b) {
+    coord.first = a;
+    coord.second = b;
+}
+
 

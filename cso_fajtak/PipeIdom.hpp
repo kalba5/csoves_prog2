@@ -37,6 +37,7 @@ protected:
     set<Directions> dirs;
     Types type;
     pair<int, int> coord;
+
 public:
     PipeIdom(set<Directions> _dirs, int _x, int _y): dirs(_dirs){
         coord = make_pair(_x, _y);
@@ -56,6 +57,7 @@ public:
     void rotate();
     set<Directions> getDirs();
     pair<int, int> getCoord();
+    void setCoord(int a, int b);
     Types getType() const;
     void printDirs();
 
