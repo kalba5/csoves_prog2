@@ -1,8 +1,0 @@
-TYPE,COUNT,DIRECTIONS,COLOR,X,Y
-simplePipe,2,UL,,,
-simplePipe,3,D,,,
-valve, 3, UD
-valve, 1, ULDR
-source, 1, R, GREEN, 0, 0
-source, 1, L, RED, 3, 3
-sink, 1, L, GREEN, 4, 4
