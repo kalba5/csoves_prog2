@@ -18,6 +18,7 @@ void PipeIdom::rotate() {
                 break;
         }
     }
+    dirs = newSet;
 
 }
 

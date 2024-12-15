@@ -32,6 +32,7 @@ private:
     bool isAllConnected(const vector<PipeIdom*> &grid, PipeIdom *sinkItem);
     void connect(pair<int, int>, Directions, PipeIdom*& actual);
     bool isSinkConnected(vector<PipeIdom*> grid);
+    PipeIdom* firstLeak(vector<PipeIdom*> grid);
     Directions oppositeSide(Directions side);
 
 public:
@@ -39,6 +40,8 @@ public:
 
     void getSolution(){};
 };
+
+
 
 
 #endif //CSOVESPROG2_SIMULATION_HPP

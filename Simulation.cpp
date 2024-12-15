@@ -183,6 +183,23 @@ bool Simulation::isSinkConnected(vector<PipeIdom *> grid) { //todo: azért majd 
     return false;
 }
 
+// Megnézi az első leaket a source, grid és sinkek között.
+PipeIdom * Simulation::firstLeak(vector<PipeIdom *> grid) { ///todo: teszt, majd ha töbhb source és sink lesz, akkor a push_backeket javítani
+
+    vector<PipeIdom*>allElements;
+
+    allElements.push_back(source);
+    allElements.insert(allElements.end(), grid.begin(), grid.end());
+    allElements.push_back(sink);
+
+    for (auto element: allElements) {
+        if (isAllConnected(allElements, element)) {
+            return element;
+        }
+    }
+    return nullptr;
+}
+
 Directions Simulation::oppositeSide(Directions side) {
     switch (side) {
         case RIGHT:
