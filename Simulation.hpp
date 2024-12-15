@@ -20,17 +20,9 @@ private:
     vector<PipeIdom*> sinks;
 
     //Tfh forrásból és nyelőből sem lehet 2 azonos színű
-    Source* greenSource;
-    Source* blueSource;
-    Source* redSource;
-    Source* yellowSource;
-    Source* purpleSource;
-
-    Sink* greenSink;
-    Sink* blueSink;
-    Sink* redSink;
-    Sink* yellowSink;
-    Sink* purpleSink;
+    ///egyenlőre csak 1 forrásra és egy nyelőre működik
+    Source* source;
+    Sink* sink;
 
 
     void searchPath();
@@ -38,7 +30,9 @@ private:
     bool haveThatDirection(PipeIdom* lmnt, Directions dir);
     bool isConnectedTo(vector<PipeIdom*> grid, pair<int, int> lmntCoord, Directions lmntDir);
     bool isAllConnected(const vector<PipeIdom*> &grid, PipeIdom *sinkItem);
-
+    void connect(pair<int, int>, Directions, PipeIdom*& actual);
+    bool isSinkConnected(vector<PipeIdom*> grid);
+    Directions oppositeSide(Directions side);
 
 public:
     Simulation(vector<PipeIdom*>, vector<PipeIdom*>, vector<PipeIdom*>, vector<PipeIdom*>);

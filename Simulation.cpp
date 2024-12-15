@@ -5,6 +5,7 @@ Simulation::Simulation(vector<PipeIdom*> sp, vector<PipeIdom*> va, vector<PipeId
     valves = va;
     sources = so;
     sinks = si;
+    /*
     for (auto & i : so) {
         if (i->getColor() == "GREEN"){
             greenSource = dynamic_cast<Source *>(i);
@@ -39,45 +40,63 @@ Simulation::Simulation(vector<PipeIdom*> sp, vector<PipeIdom*> va, vector<PipeId
             purpleSink = dynamic_cast<Sink *>(i);
         }
     }
+     */
 }
 
 
 void Simulation::searchPath() {
-    vector<vector<PipeIdom>> votma;
-    bool foundIt = false;
+    vector<vector<PipeIdom*>> badSolutions;
+    vector<vector<PipeIdom*>> goodSolutions;
+
+    vector<PipeIdom*> elements;  //azok a simplePipe-ok és valve-ok vannak benne amik még nincsenek felhasználva
+    elements.insert(elements.end(), simplePipes.begin(), simplePipes.end());
+    elements.insert(elements.end(), valves.begin(), valves.end()); //ezt még nem használjuk
+    vector<PipeIdom*> grid;  //használatban lévő elemek
+    vector<pair<int,int>> occupiedCoords;
+    vector<PipeIdom*> stack;
+
+    int whichSide = 1;
+    int elementsSize = elements.size();
+    for (int i = 0; i < elementsSize; ++i) {
+        PipeIdom* actualElement = elements[i]; //todo: azért majd teszteljük egyszer
+        Directions sourceFirstDir = *source->getDirs().begin();
 
 
-
-    while(!foundIt) {
-        //Inicializalja az alap cuccokat. todo: Ezt nem így kéne mert így nagyon lassú de most jobb nem jutott eszembe
-        vector<PipeIdom*> elements;  //azok a simplePipe-ok és valve-ok vannak benne amik még nincsenek felhasználva
-        vector<PipeIdom*> grid;  //használatban lévő elemek todo: szerintem felesleges bonyolítás lenne mátrixban tárolni
-
-        elements.insert(elements.end(), simplePipes.begin(), simplePipes.end());
-        elements.insert(elements.end(), valves.begin(), valves.end());
-
-
-
-        //ha nincs elvarratlan szál
-        //ÉS ha csatlakozik valami mindegyik sink mindegyik végére
-        bool isSinksOk = true;
-        //Megnézi mindegyik sink-et
-        for (auto &sinkItem: sinks) {
-            if(!isAllConnected(grid, sinkItem)){
-                isSinksOk = false;
-                break;
-            }
-        }
-
-        //ha nem teljesülnek a feltételek és elfogytak az elemek akkor kezdje újból
-        //ha nem teljesülnek a feltételek akkor mentse el és kezdje újból
-        //todo: mikor álljon le a while <-- célom: olyan elrendezést találni, hogy a lehető legtöbb element legyen lent
-        //todo: akkor álljon le --> ha nem tud új elrendezést találni. --> végtelen pálya esetén ez kurva sok, kéne valami megszorítás
     }
 
-
-
 }
+
+
+///kap egy pipe idom-ot, és egy másik idomnak a coord-ját és a kiválasztott dirjét
+void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom*& actual) { //todo: tesztelni kellene majd
+    switch (prevDir) {
+        case RIGHT:
+            actual->setCoord(prevCoord.first, prevCoord.second+1);
+            while (!actual->getDirs().contains(LEFT)) {
+                actual->rotate();
+            }
+            break;
+        case UP:
+            actual->setCoord(prevCoord.first-1, prevCoord.second);
+            while (!actual->getDirs().contains(DOWN)) {
+                actual->rotate();
+            }
+            break;
+        case LEFT:
+            actual->setCoord(prevCoord.first, prevCoord.second-1);
+            while (!actual->getDirs().contains(RIGHT)) {
+                actual->rotate();
+            }
+            break;
+        case DOWN:
+            actual->setCoord(prevCoord.first+1, prevCoord.second);
+            while (!actual->getDirs().contains(UP)) {
+                actual->rotate();
+            }
+            break;
+    }
+}
+
 
 ///isConnectedTo akkor tér vissza igazzal ha a kapott coordinátán létezik element\n
 /// és annak a dirs-e tartalmaz olyat amit kapott paraméterként a fv.
@@ -149,6 +168,30 @@ bool Simulation::haveThatDirection(PipeIdom *lmnt, Directions dir) {
         }
     }
     return false;
+}
+
+bool Simulation::isSinkConnected(vector<PipeIdom *> grid) { //todo: azért majd tesztelni kéne
+    for (auto sinkDir: sink->getDirs()) {
+        for (auto idom: grid) {
+            if(idom->getDirs().contains(oppositeSide(sinkDir))){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+Directions Simulation::oppositeSide(Directions side) {
+    switch (side) {
+        case RIGHT:
+            return LEFT;
+        case LEFT:
+            return RIGHT;
+        case UP:
+            return DOWN;
+        case DOWN:
+            return UP;
+    }
 }
 
 
