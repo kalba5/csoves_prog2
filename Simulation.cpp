@@ -109,6 +109,7 @@ bool Simulation::isConnectedTo(vector<PipeIdom*> grid, pair<int, int> lmntCoord,
         }
     }
     return false;
+    //pénisz
 }
 
 bool Simulation::isAllConnected(const vector<PipeIdom*>& grid, PipeIdom* sinkItem) {
