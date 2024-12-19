@@ -14,6 +14,8 @@ using namespace std;
 
 class Simulation {
 private:
+    vector<PipeIdom*> solution;
+
     vector<PipeIdom*> simplePipes;
     vector<PipeIdom*> valves;
     vector<PipeIdom*> sources;
@@ -24,21 +26,25 @@ private:
     Source* source;
     Sink* sink;
 
-
     void searchPath();
+
     bool isIn(vector<PipeIdom*> inThat, pair<int,int> onThatCoord);
     bool haveThatDirection(PipeIdom* lmnt, Directions dir);
     bool isConnectedTo(vector<PipeIdom*> grid, pair<int, int> lmntCoord, Directions lmntDir);
     bool isAllConnected(const vector<PipeIdom*> &grid, PipeIdom *sinkItem);
     void connect(pair<int, int>, Directions, PipeIdom*& actual);
-    bool isSinkConnected(vector<PipeIdom*> grid);
+    Directions chooseDirection(PipeIdom *idom, vector<pair<int, int>> occ_coords);
+    bool isBadSoulution(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions);
     PipeIdom* firstLeak(vector<PipeIdom*> grid);
     Directions oppositeSide(Directions side);
 
+    bool isSinkConnected(vector<PipeIdom*> grid);   ///Kritérium_1
+    bool haveOpenOutput(PipeIdom* idom, vector<pair<int,int>> occ_coords);  ///Kritérium_2
+
+
 public:
     Simulation(vector<PipeIdom*>, vector<PipeIdom*>, vector<PipeIdom*>, vector<PipeIdom*>);
-
-    void getSolution(){};
+    vector<PipeIdom*> getSolution();
 };
 
 

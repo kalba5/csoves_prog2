@@ -201,6 +201,5 @@ int main() {
     cout << "alma:" << alma << endl;
 
     //cout << "Idoms 2. elem dirs.size:" << idoms[1]->getDirs().size() << endl;
-
     return 0;
 }

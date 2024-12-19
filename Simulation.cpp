@@ -5,42 +5,8 @@ Simulation::Simulation(vector<PipeIdom*> sp, vector<PipeIdom*> va, vector<PipeId
     valves = va;
     sources = so;
     sinks = si;
-    /*
-    for (auto & i : so) {
-        if (i->getColor() == "GREEN"){
-            greenSource = dynamic_cast<Source *>(i);
-        }
-        else if(i->getColor() == "BLUE"){
-            blueSource = dynamic_cast<Source *>(i);
-        }
-        else if(i->getColor() == "RED"){
-            redSource = dynamic_cast<Source *>(i);
-        }
-        else if(i->getColor() == "YELLOW"){
-            yellowSource = dynamic_cast<Source *>(i);
-        }
-        else if(i->getColor() == "PURPLE"){
-            purpleSource = dynamic_cast<Source *>(i);
-        }
-    }
-    for (auto & i : si) {
-        if (i->getColor() == "GREEN"){
-            greenSink = dynamic_cast<Sink *>(i);
-        }
-        else if(i->getColor() == "BLUE"){
-            blueSink = dynamic_cast<Sink *>(i);
-        }
-        else if(i->getColor() == "RED"){
-            redSink = dynamic_cast<Sink *>(i);
-        }
-        else if(i->getColor() == "YELLOW"){
-            yellowSink = dynamic_cast<Sink *>(i);
-        }
-        else if(i->getColor() == "PURPLE"){
-            purpleSink = dynamic_cast<Sink *>(i);
-        }
-    }
-     */
+
+    searchPath();
 }
 
 
@@ -55,16 +21,26 @@ void Simulation::searchPath() {
     vector<pair<int,int>> occupiedCoords;
     vector<PipeIdom*> stack;
 
-    int whichSide = 1;
-    int elementsSize = elements.size();
-    for (int i = 0; i < elementsSize; ++i) {
-        PipeIdom* actualElement = elements[i]; //todo: azért majd teszteljük egyszer
-        Directions sourceFirstDir = *source->getDirs().begin();
+    pair<int,int> actualCoords;
+    PipeIdom* actualIdom;
+
+    occupiedCoords.push_back(source->getCoord());
+    occupiedCoords.push_back(sink->getCoord());
+
+    bool finish = false;
+    while (!finish){
 
 
+
+
+        ///Ha a goodSolutions-ben van olyan grid ahol nincs leak akkor véget ér a while
+        for (auto solution:goodSolutions) {
+            if(firstLeak(solution) == nullptr){
+                finish = true;
+            }
+        }
     }
-    //proba push a githubra
-    //proba push a githubra
+    solution = goodSolutions[goodSolutions.size()-1];
 }
 
 
@@ -98,10 +74,24 @@ void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom*
     }
 }
 
+///Megnézi hogy a kapott grid benne-van e a badSolutions-ben
+bool Simulation::isBadSoulution(vector<PipeIdom *> grid, vector<vector<PipeIdom *>> badSolutions){ //todo: nincs tesztelve
+    for (int i = 0; i < badSolutions.size(); i++)
+    {
+        for (int j = 0; j < grid.size(); j++)
+        {
+            if (badSolutions[i][j]->getCoord() == grid[j]->getCoord() and badSolutions[i][j]->getDirs() == grid[j]->getDirs())
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 
 ///isConnectedTo akkor tér vissza igazzal ha a kapott coordinátán létezik element\n
 /// és annak a dirs-e tartalmaz olyat amit kapott paraméterként a fv.
-
 bool Simulation::isConnectedTo(vector<PipeIdom*> grid, pair<int, int> lmntCoord, Directions lmntDir) {
     for (auto &item: grid) {
         if(item->getCoord() == lmntCoord and item->getDirs().contains(lmntDir)){
@@ -163,7 +153,8 @@ bool Simulation::isIn(vector<PipeIdom *> inThat, pair<int, int> onThatCoord) {
     return false;
 }
 
-bool Simulation::haveThatDirection(PipeIdom *lmnt, Directions dir) {
+///kap direction-t és megnézi h a kapott pipeidom-nak van e ilyenje
+bool Simulation::haveThatDirection(PipeIdom *lmnt, Directions dir) { //todo:lehet majd törölni kell
     for (auto d: lmnt->getDirs()) {
         if(d == dir){
             return true;
@@ -172,19 +163,8 @@ bool Simulation::haveThatDirection(PipeIdom *lmnt, Directions dir) {
     return false;
 }
 
-bool Simulation::isSinkConnected(vector<PipeIdom *> grid) { //todo: azért majd tesztelni kéne
-    for (auto sinkDir: sink->getDirs()) {
-        for (auto idom: grid) {
-            if(idom->getDirs().contains(oppositeSide(sinkDir))){
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-// Megnézi az első leaket a source, grid és sinkek között.
-PipeIdom * Simulation::firstLeak(vector<PipeIdom *> grid) { ///todo: teszt, majd ha töbhb source és sink lesz, akkor a push_backeket javítani
+/// Megnézi az első leaket a source, grid és sinkek között.
+PipeIdom* Simulation::firstLeak(vector<PipeIdom *> grid) { ///todo: teszt, majd ha töbhb source és sink lesz, akkor a push_backeket javítani
 
     vector<PipeIdom*>allElements;
 
@@ -213,4 +193,120 @@ Directions Simulation::oppositeSide(Directions side) {
     }
 }
 
+///Van e kimenete az utoljára lerakott idom-nak vagyis a kritérium_2
+bool Simulation::haveOpenOutput(PipeIdom* idom, vector<pair<int, int>> occ_coords) { //todo: TESZTELNI!!!
+    for (auto item: idom->getDirs()) {
+        pair<int,int> coord;
+        switch (item) {
+            case RIGHT:
+                coord.first = idom->getCoord().first;
+                coord.second = idom->getCoord().second+1;
+
+                for (int i = 0; i < occ_coords.size(); ++i) {
+                    if(!(occ_coords[i] == coord)){
+                        return true;
+                    }
+                }
+                break;
+            case UP:
+                coord.first = idom->getCoord().first-1;
+                coord.second = idom->getCoord().second;
+
+                for (int i = 0; i < occ_coords.size(); ++i) {
+                    if(!(occ_coords[i] == coord)){
+                        return true;
+                    }
+                }
+                break;
+            case LEFT:
+                coord.first = idom->getCoord().first;
+                coord.second = idom->getCoord().second-1;
+
+                for (int i = 0; i < occ_coords.size(); ++i) {
+                    if(!(occ_coords[i] == coord)){
+                        return true;
+                    }
+                }
+                break;
+            case DOWN:
+                coord.first = idom->getCoord().first+1;
+                coord.second = idom->getCoord().second;
+
+                for (int i = 0; i < occ_coords.size(); ++i) {
+                    if(!(occ_coords[i] == coord)){
+                        return true;
+                    }
+                }
+                break;
+        }
+    }
+    return false;
+}
+
+///Kritérium_1
+bool Simulation::isSinkConnected(vector<PipeIdom *> grid) { //todo: azért majd tesztelni kéne
+    for (auto sinkDir: sink->getDirs()) {
+        for (auto idom: grid) {
+            if(idom->getDirs().contains(oppositeSide(sinkDir))){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+///Ezt csak a connect használhatja különben megbaszódhat az egész
+///Visszaadja egy pipeIdom szabad output-ját
+///Mindenképpen lesz visszatérési értéke mivel ha connect-et hívunk akkor tudunk is connectelni.
+///idom: amihez connectelni akarunk
+Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> occ_coords) {     //todo: TESZTELNIIIIIIIII
+    pair<int,int> coord;
+    if(idom->getDirs().contains(RIGHT)){
+        coord.first = idom->getCoord().first;
+        coord.second = idom->getCoord().second+1;
+        for (auto occ_item: occ_coords) {
+            if(occ_item != coord){
+                return RIGHT;
+            }
+        }
+    }
+
+    if(idom->getDirs().contains(UP)){
+        coord.first = idom->getCoord().first-1;
+        coord.second = idom->getCoord().second;
+        for (auto occ_item: occ_coords) {
+            if(occ_item != coord){
+                return UP;
+            }
+        }
+    }
+
+    if(idom->getDirs().contains(LEFT)){
+        coord.first = idom->getCoord().first;
+        coord.second = idom->getCoord().second-1;
+        for (auto occ_item: occ_coords) {
+            if(occ_item != coord){
+                return LEFT;
+            }
+        }
+    }
+
+    if(idom->getDirs().contains(DOWN)){
+        coord.first = idom->getCoord().first+1;
+        coord.second = idom->getCoord().second;
+        for (auto occ_item: occ_coords) {
+            if(occ_item != coord){
+                return DOWN;
+            }
+        }
+    }
+}
+
+
+
+
+///ez csak a baszás izéhez kell
+vector<PipeIdom *> Simulation::getSolution() {
+    return solution;
+}
 
