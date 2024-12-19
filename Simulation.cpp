@@ -6,7 +6,11 @@ Simulation::Simulation(vector<PipeIdom*> sp, vector<PipeIdom*> va, vector<PipeId
     sources = so;
     sinks = si;
 
-    searchPath();
+    source = sources[0];
+    sink = sinks[0];
+
+    //searchPath();     ezt a kommentet majd vissza kell venni ha végeztünk a gány teszteléssel
+
 }
 
 
@@ -21,14 +25,75 @@ void Simulation::searchPath() {
     vector<pair<int,int>> occupiedCoords;
     vector<PipeIdom*> stack;
 
-    pair<int,int> actualCoords;
+    //pair<int,int> actualCoords;
     PipeIdom* actualIdom;
+    PipeIdom* prevIdom = source;
 
     occupiedCoords.push_back(source->getCoord());
     occupiedCoords.push_back(sink->getCoord());
 
     bool finish = false;
-    while (!finish){
+    int count = 1;
+    while (count != 15){//!finish){
+        if(!elements.empty()){
+            if (!grid.empty()){
+                prevIdom = grid[grid.size()-1];
+            }
+            actualIdom = elements[0];
+
+            cout << "actualIdom ciklus eleje: " << endl;
+            actualIdom->printIt();
+
+            elements.erase(elements.begin());
+            connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom);
+            grid.push_back(actualIdom);
+            occupiedCoords.push_back(actualIdom->getCoord());
+        }
+        else if(!stack.empty()){
+            actualIdom = stack[stack.size()-1];
+            stack.pop_back();
+            grid.push_back(actualIdom);
+            occupiedCoords.push_back(actualIdom->getCoord());
+            if (grid.size() >= 2) {
+                prevIdom = grid[grid.size() - 2];
+            } else {
+                prevIdom = source;
+            }
+            connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords) ,actualIdom);
+        }
+        else{
+            cout << "Nem volt item se az elements-ben se a stack-ben" << endl;
+        }
+
+        if(!isSinkConnected(grid) and !haveOpenOutput(actualIdom, occupiedCoords)){
+            grid.pop_back();
+            occupiedCoords.pop_back();
+            stack.push_back(actualIdom);
+            if(elements.empty() and !grid.empty()){
+                actualIdom = grid[grid.size() - 1];
+                if (grid.size() >= 2) {
+                    prevIdom = grid[grid.size() - 2];
+                }
+                else {
+                    prevIdom = source;
+                }
+
+                badSolutions.push_back(grid);
+
+                for (int i = 0; i < actualIdom->getDirs().size(); ++i) {    //todo: forgatásokat tesztelni kéne geci
+                    rotateMore(actualIdom, prevIdom);
+                    if(isBadSoulution(grid, badSolutions)){
+                        continue;
+                    }
+                    else{
+                        break;
+                    }
+                }
+
+            }
+        }
+
+
 
 
 
@@ -39,7 +104,53 @@ void Simulation::searchPath() {
                 finish = true;
             }
         }
+    /*
+        cout << count << "-ik while iteracio!" << endl <<"\n";
+        cout << "GRID:" << endl;
+        for (auto item: grid) {
+            item->printIt();
+        }
+
+        cout << "ELEMENTS:" << endl;
+        for (auto item: elements) {
+            item->printIt();
+        }
+
+        cout << "STACK:" << endl;
+        for (auto item: stack) {
+            item->printIt();
+        }
+        cout << "\n----------------------------------------" << endl;
+    */
+
+        cout << "actualIdom ciklus végén: " << endl;
+        actualIdom->printIt();
+
+        count++;
     }
+
+
+
+
+    /* ez csak teszteléshez kellett
+    if(elements.size() != 0) {
+        actualIdom = elements[0];
+        elements.erase(elements.begin());
+        connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom);
+        grid.push_back(actualIdom);
+        occupiedCoords.push_back(actualIdom->getCoord());
+
+        source->printIt();
+        sink->printIt();
+
+        //teszt
+        for (auto idom: grid) {
+            idom->printIt();
+        }
+    }
+    */
+
+
     solution = goodSolutions[goodSolutions.size()-1];
 }
 
@@ -99,7 +210,6 @@ bool Simulation::isConnectedTo(vector<PipeIdom*> grid, pair<int, int> lmntCoord,
         }
     }
     return false;
-    //pénisz
 }
 
 bool Simulation::isAllConnected(const vector<PipeIdom*>& grid, PipeIdom* sinkItem) {
@@ -308,5 +418,33 @@ Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> oc
 ///ez csak a baszás izéhez kell
 vector<PipeIdom *> Simulation::getSolution() {
     return solution;
+}
+
+void Simulation::rotateMore(PipeIdom *&actual, PipeIdom *previous) {
+    Directions prevConnectDir;
+
+    if(actual->getCoord().first == previous->getCoord().first){
+        if(actual->getCoord().second < previous->getCoord().second){
+            prevConnectDir = LEFT;
+        }
+        else{
+            prevConnectDir = RIGHT;
+        }
+    }
+    else{
+        if(actual->getCoord().first < previous->getCoord().first){
+            prevConnectDir = UP;
+        }
+        else{
+            prevConnectDir = DOWN;
+        }
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        actual->rotate();
+        if(actual->getDirs().contains(oppositeSide(prevConnectDir))){
+            break;
+        }
+    }
 }
 

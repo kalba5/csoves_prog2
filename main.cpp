@@ -173,33 +173,34 @@ int main() {
     //printAllPipeElements(simplePipes, valves, sources, sinks);
 
 //todo: teszt, törölni
-    vector<PipeIdom*> idoms;
+    vector<PipeIdom*> sP;
+    vector<PipeIdom*> va;
+    vector<PipeIdom*> so;
+    vector<PipeIdom*> si;
 
+    set<Directions> sP1_dirs = {UP, DOWN};
+    set<Directions> sP2_dirs = {DOWN};
+    set<Directions> sP3_dirs = {LEFT, UP};
+    set<Directions> sP4_dirs = {LEFT, UP, RIGHT};
+    set<Directions> source1_dirs = {RIGHT};
+    set<Directions> sink1_dirs = {LEFT};
 
-    set<Directions> simaCso1_dirs = {LEFT, RIGHT};
-    set<Directions> simaCso2_dirs = {UP, DOWN};
-    set<Directions> csap1_dirs = {UP, RIGHT};
-    set<Directions> forras1_dirs = {UP, RIGHT, LEFT};
-    set<Directions> nyelo1_dirs = {UP, RIGHT};
+    SimplePipe* sP1 = new SimplePipe(sP1_dirs);
+    SimplePipe* sP2 = new SimplePipe(sP2_dirs);
+    SimplePipe* sP3 = new SimplePipe(sP3_dirs);
+    SimplePipe* sP4 = new SimplePipe(sP4_dirs);
+    Source* source1 = new Source(source1_dirs, 0, 0, "GREEN");
+    Sink* sink1 = new Sink(sink1_dirs, 1, 2, "GREEN");
 
-    SimplePipe* simaCso1 = new SimplePipe(simaCso1_dirs);
-    SimplePipe* simaCso2 = new SimplePipe(simaCso2_dirs);
-    Valve* csap1 = new Valve(csap1_dirs);
-    Source* forras1 = new Source(forras1_dirs, 2, 3, "GREEN");
-    Sink* nyelo1 = new Sink(nyelo1_dirs, 2, 3, "GREEN");
+    sP.push_back(sP1);
+    sP.push_back(sP2);
+    sP.push_back(sP3);
+    sP.push_back(sP4);
+    so.push_back(source1);
+    si.push_back(sink1);
 
-    simaCso1->setCoord(2, 4);
-    simaCso2->setCoord(1, 3);
-    csap1->setCoord(2,3);
+    Simulation simulation(sP, va, so, si);
+    simulation.searchPath();
 
-    idoms.push_back(simaCso1);
-    idoms.push_back(simaCso2);
-
-
-    bool alma = sinkConnections(idoms, csap1);
-
-    cout << "alma:" << alma << endl;
-
-    //cout << "Idoms 2. elem dirs.size:" << idoms[1]->getDirs().size() << endl;
     return 0;
 }

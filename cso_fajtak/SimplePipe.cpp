@@ -9,6 +9,7 @@ void SimplePipe::printIt() const {
     for(auto it: dirs){
         cout << it << endl;
     }
+    cout << "x: " << coord.first << "  y: " << coord.second << endl;
 }
 
 string SimplePipe::getColor() const {

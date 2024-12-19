@@ -23,10 +23,10 @@ private:
 
     //Tfh forrásból és nyelőből sem lehet 2 azonos színű
     ///egyenlőre csak 1 forrásra és egy nyelőre működik
-    Source* source;
-    Sink* sink;
+    PipeIdom* source;
+    PipeIdom* sink;
 
-    void searchPath();
+
 
     bool isIn(vector<PipeIdom*> inThat, pair<int,int> onThatCoord);
     bool haveThatDirection(PipeIdom* lmnt, Directions dir);
@@ -37,6 +37,7 @@ private:
     bool isBadSoulution(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions);
     PipeIdom* firstLeak(vector<PipeIdom*> grid);
     Directions oppositeSide(Directions side);
+    void rotateMore(PipeIdom* &actual, PipeIdom* previous);
 
     bool isSinkConnected(vector<PipeIdom*> grid);   ///Kritérium_1
     bool haveOpenOutput(PipeIdom* idom, vector<pair<int,int>> occ_coords);  ///Kritérium_2
@@ -45,6 +46,9 @@ private:
 public:
     Simulation(vector<PipeIdom*>, vector<PipeIdom*>, vector<PipeIdom*>, vector<PipeIdom*>);
     vector<PipeIdom*> getSolution();
+
+    //ideiglenesen public a tesztelés miatt
+    void searchPath();
 };
 
 

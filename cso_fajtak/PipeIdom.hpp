@@ -50,10 +50,6 @@ public:
     }
 
 
-
-
-
-
     void rotate();
     set<Directions> getDirs();
     pair<int, int> getCoord();
