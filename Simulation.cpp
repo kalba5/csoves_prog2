@@ -1,5 +1,12 @@
 #include "Simulation.hpp"
-
+#include "stdexcept"
+/**
+ * @brief Simulation konstruktora
+ * @param sp
+ * @param va
+ * @param so
+ * @param si
+ */
 Simulation::Simulation(vector<PipeIdom*> sp, vector<PipeIdom*> va, vector<PipeIdom*> so, vector<PipeIdom*> si) {
     simplePipes = sp;
     valves = va;
@@ -9,11 +16,13 @@ Simulation::Simulation(vector<PipeIdom*> sp, vector<PipeIdom*> va, vector<PipeId
     source = sources[0];
     sink = sinks[0];
 
-    //searchPath();     ezt a kommentet majd vissza kell venni ha végeztünk a gány teszteléssel
-
+    //searchPath();     todo:ezt a kommentet majd vissza kell venni ha végeztünk a gány teszteléssel
 }
 
-
+/**
+ * @brief Ez a függvény keresi meg a megoldást.
+ * @details Jó kérdés, hogy hogyan :(
+ */
 void Simulation::searchPath() {
     vector<vector<PipeIdom*>> badSolutions;
     vector<vector<PipeIdom*>> goodSolutions;
@@ -40,9 +49,6 @@ void Simulation::searchPath() {
                 prevIdom = grid[grid.size()-1];
             }
             actualIdom = elements[0];
-
-            cout << "actualIdom ciklus eleje: " << endl;
-            actualIdom->printIt();
 
             elements.erase(elements.begin());
             connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom);
@@ -104,7 +110,8 @@ void Simulation::searchPath() {
                 finish = true;
             }
         }
-    /*
+
+        //teszt
         cout << count << "-ik while iteracio!" << endl <<"\n";
         cout << "GRID:" << endl;
         for (auto item: grid) {
@@ -121,10 +128,7 @@ void Simulation::searchPath() {
             item->printIt();
         }
         cout << "\n----------------------------------------" << endl;
-    */
 
-        cout << "actualIdom ciklus végén: " << endl;
-        actualIdom->printIt();
 
         count++;
     }
@@ -132,7 +136,7 @@ void Simulation::searchPath() {
 
 
 
-    /* ez csak teszteléshez kellett
+    /* //ez csak teszteléshez kellett
     if(elements.size() != 0) {
         actualIdom = elements[0];
         elements.erase(elements.begin());
@@ -155,7 +159,14 @@ void Simulation::searchPath() {
 }
 
 
-///kap egy pipe idom-ot, és egy másik idomnak a coord-ját és a kiválasztott dirjét
+/**
+ * @brief "Hozzáileszt egy idom-ot egy másikhoz"
+ * @details "Ha connectelni szeretnénk, akkor biztosan tudunk is."\n
+ * A kapott koordinátán lévő
+ * @param prevCoord
+ * @param prevDir ehez igazábol mindig a @ref chooseDirection() fv-t kell meghívni
+ * @param actual
+ */
 void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom*& actual) { //todo: tesztelni kellene majd
     switch (prevDir) {
         case RIGHT:
@@ -185,8 +196,53 @@ void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom*
     }
 }
 
-///Megnézi hogy a kapott grid benne-van e a badSolutions-ben
-bool Simulation::isBadSoulution(vector<PipeIdom *> grid, vector<vector<PipeIdom *>> badSolutions){ //todo: nincs tesztelve
+///@details Ezt csak a connect használhatja különben megbaszódhat az egész és exceptiont dob.\n
+///Visszaadja egy pipeIdom szabad output-ját.\n
+///Mindenképpen lesz visszatérési értéke mivel ha connect-et hívunk akkor tudunk is connectelni.\n
+///idom: amihez connectelni akarunk\n
+///@param idom Amelyik idomhoz szeretnénk connectelni.
+///@param occ_coords occupiedCoords vector
+Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> occ_coords) {
+    pair<int, int> coord;
+    for (auto dir : idom->getDirs()) { // Vizsgáld végig az összes irányt
+        switch (dir) {
+            case RIGHT:
+                coord = {idom->getCoord().first, idom->getCoord().second + 1};
+                break;
+            case UP:
+                coord = {idom->getCoord().first - 1, idom->getCoord().second};
+                break;
+            case LEFT:
+                coord = {idom->getCoord().first, idom->getCoord().second - 1};
+                break;
+            case DOWN:
+                coord = {idom->getCoord().first + 1, idom->getCoord().second};
+                break;
+        }
+
+        bool isInOcc = false;
+        for (const auto& oc : occ_coords) {
+            if (oc == coord) {
+                isInOcc = true;
+                break;
+            }
+        }
+        if (!isInOcc) {
+            return dir;
+        }
+    }
+    //Ha nem talál szabad irányt, kivételt dob
+    throw std::runtime_error("No available direction to connect!");
+}
+
+/**
+ * @def Megnézi, hogy a kapott grid benne van e a badSolutions-ban
+ * @param grid
+ * @param badSolutions
+ * @return Ha igaz akkor benne van, ha nem akkor nincs benne
+ */
+bool Simulation::isBadSoulution(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions){ //todo: nincs tesztelve
+    //todo: ha lassú lenne a program, először ezt kell átalakítani hash függvényes, unordered_set-es témára. A chatGpt már megírta csak implementálni kell.
     for (int i = 0; i < badSolutions.size(); i++)
     {
         for (int j = 0; j < grid.size(); j++)
@@ -199,7 +255,6 @@ bool Simulation::isBadSoulution(vector<PipeIdom *> grid, vector<vector<PipeIdom 
     }
     return false;
 }
-
 
 ///isConnectedTo akkor tér vissza igazzal ha a kapott coordinátán létezik element\n
 /// és annak a dirs-e tartalmaz olyat amit kapott paraméterként a fv.
@@ -303,6 +358,18 @@ Directions Simulation::oppositeSide(Directions side) {
     }
 }
 
+///Kritérium_1
+bool Simulation::isSinkConnected(vector<PipeIdom *> grid) { //todo: azért majd tesztelni kéne
+    for (auto sinkDir: sink->getDirs()) {
+        for (auto idom: grid) {
+            if(idom->getDirs().contains(oppositeSide(sinkDir))){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 ///Van e kimenete az utoljára lerakott idom-nak vagyis a kritérium_2
 bool Simulation::haveOpenOutput(PipeIdom* idom, vector<pair<int, int>> occ_coords) { //todo: TESZTELNI!!!
     for (auto item: idom->getDirs()) {
@@ -353,73 +420,12 @@ bool Simulation::haveOpenOutput(PipeIdom* idom, vector<pair<int, int>> occ_coord
     return false;
 }
 
-///Kritérium_1
-bool Simulation::isSinkConnected(vector<PipeIdom *> grid) { //todo: azért majd tesztelni kéne
-    for (auto sinkDir: sink->getDirs()) {
-        for (auto idom: grid) {
-            if(idom->getDirs().contains(oppositeSide(sinkDir))){
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-///Ezt csak a connect használhatja különben megbaszódhat az egész
-///Visszaadja egy pipeIdom szabad output-ját
-///Mindenképpen lesz visszatérési értéke mivel ha connect-et hívunk akkor tudunk is connectelni.
-///idom: amihez connectelni akarunk
-Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> occ_coords) {     //todo: TESZTELNIIIIIIIII
-    pair<int,int> coord;
-    if(idom->getDirs().contains(RIGHT)){
-        coord.first = idom->getCoord().first;
-        coord.second = idom->getCoord().second+1;
-        for (auto occ_item: occ_coords) {
-            if(occ_item != coord){
-                return RIGHT;
-            }
-        }
-    }
-
-    if(idom->getDirs().contains(UP)){
-        coord.first = idom->getCoord().first-1;
-        coord.second = idom->getCoord().second;
-        for (auto occ_item: occ_coords) {
-            if(occ_item != coord){
-                return UP;
-            }
-        }
-    }
-
-    if(idom->getDirs().contains(LEFT)){
-        coord.first = idom->getCoord().first;
-        coord.second = idom->getCoord().second-1;
-        for (auto occ_item: occ_coords) {
-            if(occ_item != coord){
-                return LEFT;
-            }
-        }
-    }
-
-    if(idom->getDirs().contains(DOWN)){
-        coord.first = idom->getCoord().first+1;
-        coord.second = idom->getCoord().second;
-        for (auto occ_item: occ_coords) {
-            if(occ_item != coord){
-                return DOWN;
-            }
-        }
-    }
-}
-
-
-
-
-///ez csak a baszás izéhez kell
+///ez csak a baszás izéhez kell (eredmény lekéréséhez)
 vector<PipeIdom *> Simulation::getSolution() {
     return solution;
 }
 
+///Nem biztos hogy értem hogy hogy működik
 void Simulation::rotateMore(PipeIdom *&actual, PipeIdom *previous) {
     Directions prevConnectDir;
 

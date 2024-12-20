@@ -17,10 +17,26 @@ string Sink::getColor() const{
 }
 
 void Sink::printIt() const {
-    cout << "Sink_color: " << color << endl;
-    cout << "x: " << coord.first << "  y:" << coord.second << endl;
-    cout << "Sink_dir:" << endl;
+    cout << "SINK:" << endl;
+    cout << "color: " << color << endl;
+    cout << "dirs: ";
+    string dir;
     for(auto it: dirs){
-        cout << it << endl;
+        switch (it) {
+            case UP:
+                dir = "up";
+            break;
+            case DOWN:
+                dir = "down";
+            break;
+            case LEFT:
+                dir = "left";
+            break;
+            case RIGHT:
+                dir = "right";
+        }
+        cout << dir << ", ";
     }
+    cout << endl << "coords: x: " << coord.first << "  y: " << coord.second << endl;
+    cout << "--.--.--.--.--.--.--.--.--.--.--" << endl;
 }

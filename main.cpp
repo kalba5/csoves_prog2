@@ -12,64 +12,7 @@
 
 using namespace std;
 
-bool isConnectedToSink(vector<PipeIdom*> grid, pair<int, int> lmntCoord, Directions lmntDir) {
-    for (auto &item: grid) {
-        if(item->getCoord() == lmntCoord and item->getDirs().contains(lmntDir)){
-            return true;
-        }
-    }
-    return false;
-}
-
-//todo: tesztelni kéne mert nem fix hogy jó
-bool sinkConnections(const vector<PipeIdom*>& grid, PipeIdom* sinkItem) {
-    ///true  --> mindegyik dir-jére kapcsolódik element \n
-    ///false --> van olyan dir-je amire nem kapcsolódik element
-    pair<int, int> sinkCoord = sinkItem->getCoord();
-    set<Directions> sinkDirs = sinkItem->getDirs();
-    bool right = false;
-    bool up = false;
-    bool left = false;
-    bool down = false;
-
-    //megnézi, hogy mindegyik directionjére igaz-e
-    for (auto dirs_i: sinkDirs) {
-        switch (dirs_i) {
-            case RIGHT:
-                right = isConnectedToSink(grid, pair<int, int>(sinkCoord.first, sinkCoord.second + 1), LEFT);
-                if (!right) {
-                    return false;
-                }
-                break;
-            case UP:
-                up = isConnectedToSink(grid, pair<int, int>(sinkCoord.first - 1, sinkCoord.second), DOWN);
-                if (!up) {
-                    return false;
-                }
-                break;
-            case LEFT:
-                left = isConnectedToSink(grid, pair<int, int>(sinkCoord.first, sinkCoord.second - 1), RIGHT);
-                if (!left) {
-                    return false;
-                }
-                break;
-            case DOWN:
-                down = isConnectedToSink(grid, pair<int, int>(sinkCoord.first + 1, sinkCoord.second), UP);
-                if (!down) {
-                    return false;
-                }
-                break;
-        }
-    }
-
-    return true;
-}
-
-
-
-
-
-
+string fileName = "../testData1.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
 
 void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valves, vector<PipeIdom*> sources, vector<PipeIdom*> sinks){
     for (int i = 0; i < simplePipes.size(); ++i) {
@@ -101,7 +44,7 @@ int main() {
     vector<PipeIdom*> sinks;
 
 //BEOLVASAS ELEJE
-    ifstream file("data.csv");
+    ifstream file(fileName);
     string line;
 
     // Skip the header line
@@ -170,37 +113,46 @@ int main() {
 
 //BEOLVASAS VEGE
 //beolvasas_tesztelés:
-    //printAllPipeElements(simplePipes, valves, sources, sinks);
+    printAllPipeElements(simplePipes, valves, sources, sinks);
 
 //todo: teszt, törölni
-    vector<PipeIdom*> sP;
-    vector<PipeIdom*> va;
-    vector<PipeIdom*> so;
-    vector<PipeIdom*> si;
 
-    set<Directions> sP1_dirs = {UP, DOWN};
-    set<Directions> sP2_dirs = {DOWN};
-    set<Directions> sP3_dirs = {LEFT, UP};
-    set<Directions> sP4_dirs = {LEFT, UP, RIGHT};
-    set<Directions> source1_dirs = {RIGHT};
-    set<Directions> sink1_dirs = {LEFT};
+    //TESZT: testData1 adatokkal itt leírva
+    //nem használom inkább file-ból olvasok be. (testData.csv)
+    {
+        vector<PipeIdom *> sP;
+        vector<PipeIdom *> va;
+        vector<PipeIdom *> so;
+        vector<PipeIdom *> si;
 
-    SimplePipe* sP1 = new SimplePipe(sP1_dirs);
-    SimplePipe* sP2 = new SimplePipe(sP2_dirs);
-    SimplePipe* sP3 = new SimplePipe(sP3_dirs);
-    SimplePipe* sP4 = new SimplePipe(sP4_dirs);
-    Source* source1 = new Source(source1_dirs, 0, 0, "GREEN");
-    Sink* sink1 = new Sink(sink1_dirs, 1, 2, "GREEN");
+        set<Directions> sP1_dirs = {UP, DOWN};
+        set<Directions> sP2_dirs = {DOWN};
+        set<Directions> sP3_dirs = {LEFT, UP};
+        set<Directions> sP4_dirs = {LEFT, UP, RIGHT};
+        set<Directions> source1_dirs = {RIGHT};
+        set<Directions> sink1_dirs = {LEFT};
 
-    sP.push_back(sP1);
-    sP.push_back(sP2);
-    sP.push_back(sP3);
-    sP.push_back(sP4);
-    so.push_back(source1);
-    si.push_back(sink1);
+        SimplePipe *sP1 = new SimplePipe(sP1_dirs);
+        SimplePipe *sP2 = new SimplePipe(sP2_dirs);
+        SimplePipe *sP3 = new SimplePipe(sP3_dirs);
+        SimplePipe *sP4 = new SimplePipe(sP4_dirs);
+        Source *source1 = new Source(source1_dirs, 0, 0, "GREEN");
+        Sink *sink1 = new Sink(sink1_dirs, 1, 2, "GREEN");
 
-    Simulation simulation(sP, va, so, si);
+
+        sP.push_back(sP1);
+        sP.push_back(sP2);
+        sP.push_back(sP3);
+        sP.push_back(sP4);
+        so.push_back(source1);
+        si.push_back(sink1);
+    }
+
+
+
+    Simulation simulation(simplePipes, valves, sources, sinks);
     simulation.searchPath();
+
 
     return 0;
 }

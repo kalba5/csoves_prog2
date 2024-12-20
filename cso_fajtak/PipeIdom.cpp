@@ -19,7 +19,6 @@ void PipeIdom::rotate() {
         }
     }
     dirs = newSet;
-
 }
 
 set<Directions> PipeIdom::getDirs() {
@@ -34,6 +33,10 @@ Types PipeIdom::getType() const {
     return type;
 }
 
+
+/**
+ * @todo Törölni
+ */
 void PipeIdom::printDirs() {
     for(auto it: dirs){
         cout << it << endl;
@@ -44,5 +47,3 @@ void PipeIdom::setCoord(int a, int b) {
     coord.first = a;
     coord.second = b;
 }
-
-

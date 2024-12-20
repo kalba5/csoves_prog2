@@ -15,8 +15,6 @@ add_executable(csovesProg2 main.cpp
         cso_fajtak/Sink.cpp
         cso_fajtak/Sink.hpp
         cso_fajtak/DoubleTurn.hpp
-        Pipe.cpp
-        Pipe.hpp
         Simulation.cpp
         Simulation.hpp
 )

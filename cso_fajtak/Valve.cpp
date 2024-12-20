@@ -9,12 +9,30 @@ void Valve::setValve(bool val) {
 }
 
 void Valve::printIt() const {
-    cout << "Valve_dir:" << endl;
+    cout << "VALVE:" << endl;
+    cout << "open: " << open << endl;
+    cout << "dirs: ";
+    string dir;
     for(auto it: dirs){
-        cout << it << endl;
+        switch (it) {
+            case UP:
+                dir = "up";
+            break;
+            case DOWN:
+                dir = "down";
+            break;
+            case LEFT:
+                dir = "left";
+            break;
+            case RIGHT:
+                dir = "right";
+        }
+        cout << dir << ", ";
     }
+    cout << endl << "coords: x: " << coord.first << "  y: " << coord.second << endl;
+    cout << "--.--.--.--.--.--.--.--.--.--.--" << endl;
 }
 
 string Valve::getColor() const {
-    return std::string();
+    return "";
 }

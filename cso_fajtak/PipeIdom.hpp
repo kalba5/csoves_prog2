@@ -33,7 +33,6 @@ enum Types{
 
 class PipeIdom {
 protected:
-    int numOfEnds;
     set<Directions> dirs;
     Types type;
     pair<int, int> coord;
@@ -45,10 +44,6 @@ public:
 
     PipeIdom(set<Directions> _dirs): dirs(_dirs){}
 
-    int getNumOfEnds(){
-        return static_cast<int>(dirs.size());
-    }
-
 
     void rotate();
     set<Directions> getDirs();
@@ -56,6 +51,7 @@ public:
     void setCoord(int a, int b);
     Types getType() const;
     void printDirs();
+
 
     virtual void printIt() const = 0;
     virtual string getColor() const = 0;
