@@ -11,7 +11,10 @@
 #include ".\cso_fajtak\PipeIdom.hpp"
 using namespace std;
 
-
+/**
+ * @details A Simulation osztályban van megírva a program logikája, az útvonaltervezés illetve az ehez kellő segédfüggvények\n
+ * Az útvonalat a searchPath() fv számítja ki, majd elmenti a solution változóba a legjobb megoldást.\n Ezt a getSolution() fv-vel lehet megkapni az osztályon kívülről.
+ */
 class Simulation {
 private:
     vector<PipeIdom*> solution;
@@ -41,6 +44,9 @@ private:
 
     bool isSinkConnected(vector<PipeIdom*> grid);   ///Kritérium_1
     bool haveOpenOutput(PipeIdom* idom, vector<pair<int,int>> occ_coords);  ///Kritérium_2
+
+    //Teszt függvények
+    void testPrintContainers(int count, vector<PipeIdom*> elements, vector<PipeIdom*> grid, vector<PipeIdom*> stack);
 
 
 public:

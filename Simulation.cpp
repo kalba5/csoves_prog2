@@ -111,29 +111,8 @@ void Simulation::searchPath() {
             }
         }
 
-        //teszt
-        cout << count << "-ik while iteracio!" << endl <<"\n";
-        cout << "GRID:" << endl;
-        for (auto item: grid) {
-            item->printIt();
-        }
-
-        cout << "ELEMENTS:" << endl;
-        for (auto item: elements) {
-            item->printIt();
-        }
-
-        cout << "STACK:" << endl;
-        for (auto item: stack) {
-            item->printIt();
-        }
-        cout << "\n----------------------------------------" << endl;
-
-
         count++;
     }
-
-
 
 
     /* //ez csak teszteléshez kellett
@@ -236,7 +215,7 @@ Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> oc
 }
 
 /**
- * @def Megnézi, hogy a kapott grid benne van e a badSolutions-ban
+ * @brief Megnézi, hogy a kapott @b grid benne van e a badSolutions-ban Simulation::connect()
  * @param grid
  * @param badSolutions
  * @return Ha igaz akkor benne van, ha nem akkor nincs benne
@@ -452,5 +431,33 @@ void Simulation::rotateMore(PipeIdom *&actual, PipeIdom *previous) {
             break;
         }
     }
+}
+
+/**
+ * @brief Csak a debugoláshoz kellő kiírató fv
+ * @details Kiírja a consolra, hogy hányadik ciklus iteráció van illetve a grid, az elements és a stack összes elemét.
+ * @param count searchPath-ben a while ciklus iteráció számolására van kitalálva
+ * @param elements
+ * @param grid
+ * @param stack
+ */
+void Simulation::testPrintContainers(int count, vector<PipeIdom *> elements, vector<PipeIdom *> grid, vector<PipeIdom *> stack) {
+    //teszt
+    cout << count << "-ik while iteracio!" << endl <<"\n";
+    cout << "GRID:" << endl;
+    for (auto item: grid) {
+        item->printIt();
+    }
+
+    cout << "ELEMENTS:" << endl;
+    for (auto item: elements) {
+        item->printIt();
+    }
+
+    cout << "STACK:" << endl;
+    for (auto item: stack) {
+        item->printIt();
+    }
+    cout << "\n----------------------------------------" << endl;
 }
 
