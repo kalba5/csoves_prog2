@@ -12,7 +12,7 @@
 
 using namespace std;
 
-string fileName = "../testData1.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
+const string fileName = "../testData1.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
 
 void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valves, vector<PipeIdom*> sources, vector<PipeIdom*> sinks){
     for (int i = 0; i < simplePipes.size(); ++i) {
@@ -118,7 +118,7 @@ int main() {
 //todo: teszt, törölni
 
     //TESZT: testData1 adatokkal itt leírva
-    //nem használom inkább file-ból olvasok be. (testData.csv)
+    //nem használom inkább file-ból olvasok be. (testData1.csv)
     {
         vector<PipeIdom *> sP;
         vector<PipeIdom *> va;
@@ -151,8 +151,13 @@ int main() {
 
 
     Simulation simulation(simplePipes, valves, sources, sinks);
-    simulation.searchPath();
-
+    try {
+        simulation.searchPath();
+    }
+    catch (runtime_error c){
+        cout << "searchPath()-ben exception dobodott: ";
+        cout << c.what() << endl;
+    }
 
     return 0;
 }

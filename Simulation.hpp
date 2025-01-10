@@ -53,7 +53,7 @@ public:
     Simulation(vector<PipeIdom*>, vector<PipeIdom*>, vector<PipeIdom*>, vector<PipeIdom*>);
     vector<PipeIdom*> getSolution();
 
-    //ideiglenesen public a tesztelés miatt
+    //todo: ideiglenesen public a tesztelés miatt, majd vissza kell rakni private-ba
     void searchPath();
 };
 

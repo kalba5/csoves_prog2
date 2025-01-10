@@ -27,12 +27,13 @@ void Simulation::searchPath() {
     vector<vector<PipeIdom*>> badSolutions;
     vector<vector<PipeIdom*>> goodSolutions;
 
+
     vector<PipeIdom*> elements;  //azok a simplePipe-ok és valve-ok vannak benne amik még nincsenek felhasználva
     elements.insert(elements.end(), simplePipes.begin(), simplePipes.end());
     elements.insert(elements.end(), valves.begin(), valves.end()); //ezt még nem használjuk
     vector<PipeIdom*> grid;  //használatban lévő elemek
-    vector<pair<int,int>> occupiedCoords;
     vector<PipeIdom*> stack;
+    vector<pair<int,int>> occupiedCoords;
 
     //pair<int,int> actualCoords;
     PipeIdom* actualIdom;
@@ -404,7 +405,7 @@ vector<PipeIdom *> Simulation::getSolution() {
     return solution;
 }
 
-///Nem biztos hogy értem hogy hogy működik
+///Nem biztos hogy értem hogy hogy működik - Bálint
 void Simulation::rotateMore(PipeIdom *&actual, PipeIdom *previous) {
     Directions prevConnectDir;
 
@@ -433,6 +434,8 @@ void Simulation::rotateMore(PipeIdom *&actual, PipeIdom *previous) {
     }
 }
 
+
+
 /**
  * @brief Csak a debugoláshoz kellő kiírató fv
  * @details Kiírja a consolra, hogy hányadik ciklus iteráció van illetve a grid, az elements és a stack összes elemét.
@@ -460,4 +463,3 @@ void Simulation::testPrintContainers(int count, vector<PipeIdom *> elements, vec
     }
     cout << "\n----------------------------------------" << endl;
 }
-
