@@ -33,75 +33,61 @@ void Simulation::searchPath() {
     elements.insert(elements.end(), valves.begin(), valves.end()); //ezt még nem használjuk
     vector<PipeIdom*> grid;  //használatban lévő elemek
     vector<PipeIdom*> stack;
-    vector<pair<int,int>> occupiedCoords;
+    vector<pair<int,int>> occupiedCoords;   //todo: át kéne írni olyan adatszerkezetre amibe 1-nél több ugyanolyan dolgot nem lehet belerakni, mert egyszerre csak 1 idom lehet 1 coorsinátán
 
     //pair<int,int> actualCoords;
-    PipeIdom* actualIdom;
+    PipeIdom* actualIdom = source;
     PipeIdom* prevIdom = source;
 
     occupiedCoords.push_back(source->getCoord());
     occupiedCoords.push_back(sink->getCoord());
 
-
     int count = 1;
     while (solution.empty()){//!finish){
-        if(!elements.empty()){
-            if (!grid.empty()){
-                prevIdom = grid[grid.size()-1];
-            }
-            actualIdom = elements[0];
+        //1. éés 2. feltételek ellenőrzése:
+        if(isSinkConnected(grid)){  //todo: feltételezzük hogy a source nem úgy van megadva hogy at egyből kapcsolódik a sink egyetlen kimenetéhez
+            if(haveOpenOutput(actualIdom, occupiedCoords)){
+                //KAPCS sink-hez és VAN kimenete az utolsónak
 
-            elements.erase(elements.begin());
-            connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom);
-            grid.push_back(actualIdom);
-            occupiedCoords.push_back(actualIdom->getCoord());
-        }
-        else if(!stack.empty()){
-            actualIdom = stack[stack.size()-1];
-            stack.pop_back();
-            grid.push_back(actualIdom);
-            occupiedCoords.push_back(actualIdom->getCoord());
-            if (grid.size() >= 2) {
-                prevIdom = grid[grid.size() - 2];
-            } else {
-                prevIdom = source;
             }
-            connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords) ,actualIdom);
+            else{
+                //KAPCS sink-hez és NICNS kimenete az utolsónak
+
+            }
         }
         else{
-            cout << "Nem volt item se az elements-ben se a stack-ben" << endl;
-        }
-
-        if(!isSinkConnected(grid) and !haveOpenOutput(actualIdom, occupiedCoords)){
-            grid.pop_back();
-            occupiedCoords.pop_back();
-            stack.push_back(actualIdom);
-            if(elements.empty() and !grid.empty()){
-                actualIdom = grid[grid.size() - 1];
-                if (grid.size() >= 2) {
-                    prevIdom = grid[grid.size() - 2];
+            if(haveOpenOutput(actualIdom, occupiedCoords)){
+                //NEM kapcs sink-hez és VAN kimenete az utolsónak\n
+                //--> választunk egy új actualIdom-ot
+                if(!elements.empty()){
+                    //Ha nem üres az elements akkor onnan választunk
+                    prevIdom = actualIdom;
+                    actualIdom = elements[0];
+                    elements.pop_back();
+                    connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom,
+                            vector<pair<int, int>>());
+                    occupiedCoords.push_back(actualIdom->getCoord());
+                    //todo: indul előlről a while
                 }
-                else {
-                    prevIdom = source;
-                }
-
-                badSolutions.push_back(grid);
-
-                for (int i = 0; i < actualIdom->getDirs().size(); ++i) {    //todo: forgatásokat tesztelni kéne geci
-                    rotateMore(actualIdom, prevIdom);
-                    if(isInBadSoulutions(grid, badSolutions)){
-                        continue;
+                else{
+                    if(!stack.empty()){
+                        //Ha üres az elements akkor a stack-ből választunk (ha tudunk)
+                        prevIdom = actualIdom;
+                        actualIdom = stack[stack.size()-1];
+                        stack.pop_back();
                     }
                     else{
-                        break;
+                        //todo: ilyenkor mit kell csinálni???
+                        throw std::runtime_error("There is no idom in either the elements or the stack");
                     }
                 }
 
             }
+            else{
+                //NEM kapcs sink-hez és NINCS kimenete az utolsónak
+
+            }
         }
-
-
-
 
 
 
@@ -128,13 +114,14 @@ void Simulation::searchPath() {
  * @details A kapott koordinátán lévő idom kapott dir-jéhez illeszti a kapott idomot.\n
  * Valójában azt csinálja, hogy a kapott (param: actual) idomot addíg forgatja amíg annak az egyik kimenete és a prev idom egyik kimenete pont
  * ellenkező irányba néznek, a megadott koordinátáknak megfelelően.\n
- * És beállítja a kapott idom coordinátáját.
+ * És beállítja a kapott idom coordinátáját.\n
+ * Továbbá ezt a koordinátát belerakja az occupiedCoords-ba
  * @param prevCoord A prevIdom coordinátája.
  * @param prevDir Azt adja meg, hogy a prevIdom melyik dir-jéhez akarunk connectelni.\n Ehez MAJDNEM mindig a chooseDirection() fv-t kell meghívni
  * @param actual Ez az az idom amit connectelni szeretnénk.
  * @warning "Ha connectelni szeretnénk, akkor biztosan tudunk is." Vagyis ezt a függvényt csak akkor szabad meghívni ha biztosan el tudja végezni a feladatát.
  */
-void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom*& actual) { //todo: tesztelni kellene majd
+void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom *&actual, vector<pair<int, int >> &occ_coords) { //todo: tesztelni kellene majd
     switch (prevDir) {
         case RIGHT:
             actual->setCoord(prevCoord.first, prevCoord.second+1);
@@ -161,6 +148,7 @@ void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom*
             }
             break;
     }
+    occ_coords.push_back(actual->getCoord());
 }
 
 /**
