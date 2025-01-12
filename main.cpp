@@ -47,73 +47,71 @@ int main() {
     vector<PipeIdom*> sinks;
 
 //BEOLVASAS ELEJE
-    ifstream file(fileName);
-    string line;
+    {
+        ifstream file(fileName);
+        string line;
 
-    // Skip the header line
-    getline(file, line);
+        // Skip the header line
+        getline(file, line);
 
-    while (getline(file, line)) {
-        stringstream ss(line);
-        string type, directions, color, x_str, y_str;
-        int count, x, y;
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string type, directions, color, x_str, y_str;
+            int count, x, y;
 
-        getline(ss, type, ',');
-        ss >> count;
-        ss.ignore(1); // Skip comma after count
-        getline(ss, directions, ',');
-        getline(ss, color, ',');
-        getline(ss, x_str, ',');
-        getline(ss, y_str);
+            getline(ss, type, ',');
+            ss >> count;
+            ss.ignore(1); // Skip comma after count
+            getline(ss, directions, ',');
+            getline(ss, color, ',');
+            getline(ss, x_str, ',');
+            getline(ss, y_str);
 
-        // Convert x and y to integers
-        x = x_str.empty() ? -1 : stoi(x_str);
-        y = y_str.empty() ? -1 : stoi(y_str);
+            // Convert x and y to integers
+            x = x_str.empty() ? -1 : stoi(x_str);
+            y = y_str.empty() ? -1 : stoi(y_str);
 
-        set<Directions> dir;
-        for (auto i: directions) {
-            switch (i) {
-                case 'U':
-                    dir.insert(UP);
-                    break;
-                case 'L':
-                    dir.insert(LEFT);
-                    break;
-                case 'D':
-                    dir.insert(DOWN);
-                    break;
-                case 'R':
-                    dir.insert(RIGHT);
-                    break;
+            set<Directions> dir;
+            for (auto i: directions) {
+                switch (i) {
+                    case 'U':
+                        dir.insert(UP);
+                        break;
+                    case 'L':
+                        dir.insert(LEFT);
+                        break;
+                    case 'D':
+                        dir.insert(DOWN);
+                        break;
+                    case 'R':
+                        dir.insert(RIGHT);
+                        break;
+                }
             }
-        }
 
-        if(type == "simplePipe"){
-            //azért kell ide a for mert 'count' darabot kell ebbol a fajtabol belerakni a vectorba
-            for (int i = 0; i < count; i++) {
-                SimplePipe* simplePipe = new SimplePipe(dir);
-                simplePipes.push_back(simplePipe);
-            }
-        }
-        else if(type == "valve"){
-            for (int i = 0; i < count; i++) {
-                Valve *valve = new Valve(dir);
-                valves.push_back(valve);
-            }
-        }
-        else if(type == "source"){
-            //forrásból nem lehet több ugyanolyan színű
-            Source* source = new Source(dir, x, y, color);
-            sources.push_back(source);
-        }
-        else if(type == "sink"){
-            for (int i = 0; i < count; i++) {
-                Sink* sink = new Sink(dir, x, y, color);
-                sinks.push_back(sink);
+            if (type == "simplePipe") {
+                //azért kell ide a for mert 'count' darabot kell ebbol a fajtabol belerakni a vectorba
+                for (int i = 0; i < count; i++) {
+                    SimplePipe *simplePipe = new SimplePipe(dir);
+                    simplePipes.push_back(simplePipe);
+                }
+            } else if (type == "valve") {
+                for (int i = 0; i < count; i++) {
+                    Valve *valve = new Valve(dir);
+                    valves.push_back(valve);
+                }
+            } else if (type == "source") {
+                //forrásból nem lehet több ugyanolyan színű
+                Source *source = new Source(dir, x, y, color);
+                sources.push_back(source);
+            } else if (type == "sink") {
+                for (int i = 0; i < count; i++) {
+                    Sink *sink = new Sink(dir, x, y, color);
+                    sinks.push_back(sink);
+                }
             }
         }
     }
-
 //BEOLVASAS VEGE
 //beolvasas_tesztelés:
     cout<<"Print All Pipe Elements ELEJE" << endl;
@@ -158,6 +156,9 @@ int main() {
     Simulation simulation(simplePipes, valves, sources, sinks);
     try {
         simulation.searchPath();
+        for (auto idom: simulation.getSolution()) {
+            idom->printIt();
+        }
     }
     catch (runtime_error c){
         cout << "searchPath()-ben exception dobodott: ";

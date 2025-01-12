@@ -34,7 +34,8 @@ private:
     bool haveThatDirection(PipeIdom* lmnt, Directions dir);
     bool isConnectedTo(vector<PipeIdom*> grid, pair<int, int> idomCoord, Directions idomDir);
     bool isAllConnected(const vector<PipeIdom*> &grid, PipeIdom *idom);
-    void connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom *&actual, vector<pair<int, int >> &occ_coords);
+    void connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom *&actual,
+                 vector<pair<int, int >> &occ_coords, vector<PipeIdom *> &grid);
     Directions chooseDirection(PipeIdom *idom, vector<pair<int, int>> occ_coords);
     bool canConnect(PipeIdom* actual, PipeIdom* prev, Directions prevsSelectedDir, vector<PipeIdom*> grid);
     void inverseConnect(PipeIdom* idom, vector<PipeIdom*> &grid, vector<pair<int, int>> &occ_coords);

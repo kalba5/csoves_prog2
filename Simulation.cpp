@@ -42,16 +42,48 @@ void Simulation::searchPath() {
     occupiedCoords.push_back(source->getCoord());
     occupiedCoords.push_back(sink->getCoord());
 
+
+
+
+
+
+    //todo: teszt, törölni
+    cout<<"elements a searchPath()-ben ELEJE" << endl;
+    for (auto idom: elements) {
+        idom->printIt();
+    }
+    source->printIt();
+    sink->printIt();
+    cout<<"elements a searchPath()-ben VEGE" << endl;
+
+
+
+
+
+
+
     int count = 1;
     while (solution.empty()){//!finish){
         //1. éés 2. feltételek ellenőrzése:
-        if(isSinkConnected(grid)){  //todo: feltételezzük hogy a source nem úgy van megadva hogy at egyből kapcsolódik a sink egyetlen kimenetéhez
+        if(isSinkConnected(grid)){  //todo: feltételezzük hogy a source nem úgy van megadva hogy egy kimenete van és az egyből kapcsolódik a sink egyetlen kimenetéhez
             if(haveOpenOutput(actualIdom, occupiedCoords)){
                 //KAPCS sink-hez és VAN kimenete az utolsónak
-
+                //todo: végiggondolni, most jobb ötlet híján kerüljön a goodSolutions-ba a grid
+                goodSolutions.push_back(grid);
             }
             else{
                 //KAPCS sink-hez és NICNS kimenete az utolsónak
+                ///Ha a goodSolutions-ben van olyan grid ahol nincs leak akkor véget ér a while.\n
+                ///Vagyis jelenleg addig megy a while amíg nem talál perfect solution-t.
+                for (auto sol:goodSolutions) {
+                    if(firstLeak(sol) == nullptr){
+                        solution = sol;
+                    }
+                }
+                if(!solution.empty()){
+                    //kilépünk
+                    break;
+                }
 
             }
         }
@@ -64,7 +96,8 @@ void Simulation::searchPath() {
                     prevIdom = actualIdom;
                     actualIdom = elements[0];
                     elements.pop_back();
-                    connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom, occupiedCoords);
+                    connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom, occupiedCoords,
+                            grid);
                     //todo: indul előlről a while
                 }
                 else{
@@ -83,7 +116,8 @@ void Simulation::searchPath() {
                                 index = tmp_prevDirs.size() - 1;
 
                                 if (canConnect(actualIdom, prevIdom, tmp_prevDirs[index], grid)) {
-                                    connect(prevIdom->getCoord(), tmp_prevDirs[index], actualIdom, occupiedCoords);
+                                    connect(prevIdom->getCoord(), tmp_prevDirs[index], actualIdom, occupiedCoords,
+                                            grid);
                                     tmp_prevDirs.pop_back();
                                     if (isInBadSoulutions(grid, badSolutions)) {
                                         if (i != 3) {
@@ -160,20 +194,29 @@ void Simulation::searchPath() {
             }
             else{
                 //NEM kapcs sink-hez és NINCS kimenete az utolsónak
+                if(elements.empty()){
+                    badSolutions.push_back(grid);
+                }
+                stack.push_back(actualIdom);
+                inverseConnect(actualIdom, grid, occupiedCoords);
 
+                if(grid.size() == 0){
+                    actualIdom = source;    //todo: ez nem biztos hogy jó
+                    prevIdom = source;
+                }
+                else if(grid.size() == 1){
+                    actualIdom = grid[0];
+                    prevIdom = source;
+                }
+                else{
+                    actualIdom = grid[grid.size()-1];
+                    prevIdom = grid[grid.size()-2];
+                }
             }
         }
 
 
-
-        ///Ha a goodSolutions-ben van olyan grid ahol nincs leak akkor véget ér a while.\n
-        ///Vagyis jelenleg addig megy a while amíg nem talál perfect solution-t.
-        for (auto sol:goodSolutions) {
-            if(firstLeak(sol) == nullptr){
-                solution = sol;
-            }
-        }
-
+        testPrintContainers(count, elements, grid, stack);
         count++;
     }
     //WHILE VÉGE
@@ -196,7 +239,8 @@ void Simulation::searchPath() {
  * @param actual Ez az az idom amit connectelni szeretnénk.
  * @warning "Ha connectelni szeretnénk, akkor biztosan tudunk is." Vagyis ezt a függvényt csak akkor szabad meghívni ha biztosan el tudja végezni a feladatát.
  */
-void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom *&actual, vector<pair<int, int >> &occ_coords) { //todo: tesztelni kellene majd
+void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom *&actual,
+                         vector<pair<int, int >> &occ_coords, vector<PipeIdom *> &grid) { //todo: tesztelni kellene majd
     switch (prevDir) {
         case RIGHT:
             actual->setCoord(prevCoord.first, prevCoord.second+1);
@@ -224,6 +268,7 @@ void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom 
             break;
     }
     occ_coords.push_back(actual->getCoord());
+    grid.push_back(actual);
 }
 
 /**
@@ -598,11 +643,6 @@ bool Simulation::haveOpenOutput(PipeIdom* idom, vector<pair<int, int>> occ_coord
     return false;
 }
 
-///ez csak a baszás izéhez kell (eredmény lekéréséhez)
-vector<PipeIdom *> Simulation::getSolution() {
-    return solution;
-}
-
 ///Nem biztos hogy értem hogy hogy működik - Bálint
 void Simulation::rotateMore(PipeIdom *&actual, PipeIdom *previous) {
     Directions prevConnectDir;
@@ -632,7 +672,10 @@ void Simulation::rotateMore(PipeIdom *&actual, PipeIdom *previous) {
     }
 }
 
-
+///ez csak a baszás izéhez kell (eredmény lekéréséhez)
+vector<PipeIdom *> Simulation::getSolution() {
+    return solution;
+}
 
 /**
  * @brief Csak a debugoláshoz kellő kiírató fv
@@ -645,13 +688,14 @@ void Simulation::rotateMore(PipeIdom *&actual, PipeIdom *previous) {
 void Simulation::testPrintContainers(int count, vector<PipeIdom *> elements, vector<PipeIdom *> grid, vector<PipeIdom *> stack) {
     //teszt
     cout << count << "-ik while iteracio!" << endl <<"\n";
-    cout << "GRID:" << endl;
-    for (auto item: grid) {
-        item->printIt();
-    }
 
     cout << "ELEMENTS:" << endl;
     for (auto item: elements) {
+        item->printIt();
+    }
+
+    cout << "GRID:" << endl;
+    for (auto item: grid) {
         item->printIt();
     }
 
