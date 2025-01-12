@@ -44,6 +44,10 @@ public:
 
     PipeIdom(set<Directions> _dirs): dirs(_dirs){}
 
+    //copy constructor
+    PipeIdom(const PipeIdom& other) : dirs(other.dirs), coord(other.coord), type(other.type) {}
+
+    virtual PipeIdom* clone() const = 0;
 
     void rotate();
     set<Directions> getDirs();
@@ -51,6 +55,8 @@ public:
     void setCoord(int a, int b);
     Types getType() const;
     void printDirs();
+
+    bool operator==(const PipeIdom &other) const;
 
 
     virtual void printIt() const = 0;

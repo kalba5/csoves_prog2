@@ -16,6 +16,8 @@ public:
     string getColor() const override;
 
     void printIt() const override;
+
+    PipeIdom *clone() const override;
 };
 
 

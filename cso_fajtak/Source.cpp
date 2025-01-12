@@ -36,3 +36,7 @@ void Source::printIt() const {
     cout << endl << "coords: x: " << coord.first << "  y: " << coord.second << endl;
     cout << "--.--.--.--.--.--.--.--.--.--.--" << endl;
 }
+
+PipeIdom *Source::clone() const {
+    return new Source(*this);
+}

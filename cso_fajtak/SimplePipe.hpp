@@ -10,11 +10,16 @@ class SimplePipe: public PipeIdom {
 public:
     SimplePipe(set<Directions> dirs): PipeIdom(std::move(dirs)){}
 
+    //copy constructor
+    SimplePipe(const SimplePipe& other): PipeIdom(other){}
+
     void printIt() const override;
 
     string getColor() const override;
 
-
+    PipeIdom* clone() const override {
+        return new SimplePipe(*this);
+    }
 };
 
 

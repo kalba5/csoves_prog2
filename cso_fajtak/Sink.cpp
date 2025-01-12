@@ -40,3 +40,7 @@ void Sink::printIt() const {
     cout << endl << "coords: x: " << coord.first << "  y: " << coord.second << endl;
     cout << "--.--.--.--.--.--.--.--.--.--.--" << endl;
 }
+
+PipeIdom *Sink::clone() const {
+    return new Sink(*this);
+}

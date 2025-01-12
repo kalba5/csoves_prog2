@@ -51,7 +51,8 @@ void Simulation::searchPath() {
             if(haveOpenOutput(actualIdom, occupiedCoords)){
                 //KAPCS sink-hez és VAN kimenete az utolsónak
                 //todo: végiggondolni, most jobb ötlet híján kerüljön a goodSolutions-ba a grid
-                goodSolutions.push_back(grid);
+                //goodSolutions.push_back(grid);
+                addGridToSolutions(grid, goodSolutions);
             }
             else{
                 //KAPCS sink-hez és NICNS kimenete az utolsónak
@@ -136,7 +137,8 @@ void Simulation::searchPath() {
                         }
 
                         if(!connecteltunk or tmp_wasInBad){
-                            badSolutions.push_back(grid);
+                            //badSolutions.push_back(grid);
+                            addGridToSolutions(grid, badSolutions);
                             if(!grid.empty()){
                                 actualIdom = grid[grid.size()-1];
                                 if(grid.size() == 1){
@@ -179,7 +181,8 @@ void Simulation::searchPath() {
                 //NEM kapcs sink-hez és
                 //NINCS kimenete az utolsónak
                 if(elements.empty()){
-                    badSolutions.push_back(grid);
+                    //badSolutions.push_back(grid);
+                    addGridToSolutions(grid, badSolutions);
                 }
                 stack.push_back(actualIdom);
                 inverseConnect(actualIdom, grid, occupiedCoords);
@@ -677,6 +680,20 @@ bool Simulation::haveOpenOutput(PipeIdom* idom, vector<pair<int, int>> occ_coord
         }
     }
     return false;
+}
+
+/**
+ * @details Létrehoz egy másolatot a gridről és azt menti el a goodSolutions-ban vagy a badSolutions-ban.\n
+ * Ez azért jó mert így ha a grid egyik elemén változtatok valamit akkor az a good/bad -solutions-ban nem fog változni.
+ * @param grid
+ * @param badOrGoodSolutions
+ */
+void Simulation::addGridToSolutions(vector<PipeIdom *> grid, vector<vector<PipeIdom *>> &badOrGoodSolutions) {
+    vector<PipeIdom*> tmpGrid;
+    for (auto idom: grid) {
+        tmpGrid.push_back(idom->clone());
+    }
+    badOrGoodSolutions.push_back(tmpGrid);
 }
 
 ///Nem biztos hogy értem hogy hogy működik - Bálint

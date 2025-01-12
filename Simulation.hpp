@@ -46,6 +46,7 @@ private:
 
     bool isSinkConnected(vector<PipeIdom*> grid);   ///Kritérium_1
     bool haveOpenOutput(PipeIdom* idom, vector<pair<int,int>> occ_coords);  ///Kritérium_2
+    void addGridToSolutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> &badOrGoodSolutions);
 
     //Teszt függvények
     void testPrintContainers(int count, vector<PipeIdom*> elements, vector<PipeIdom*> grid, vector<PipeIdom*> stack);

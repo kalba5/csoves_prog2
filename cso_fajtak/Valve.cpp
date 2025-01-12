@@ -36,3 +36,7 @@ void Valve::printIt() const {
 string Valve::getColor() const {
     return "";
 }
+
+PipeIdom *Valve::clone() const {
+    return new Valve(*this);
+}

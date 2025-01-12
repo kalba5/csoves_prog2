@@ -158,7 +158,6 @@ int main() {
 
 
 
-
     Simulation simulation(simplePipes, valves, sources, sinks);
     try {
         simulation.searchPath();
