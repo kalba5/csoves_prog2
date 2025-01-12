@@ -43,29 +43,11 @@ void Simulation::searchPath() {
     occupiedCoords.push_back(sink->getCoord());
 
 
-
-
-
-
-    //todo: teszt, törölni
-    cout<<"elements a searchPath()-ben ELEJE" << endl;
-    for (auto idom: elements) {
-        idom->printIt();
-    }
-    source->printIt();
-    sink->printIt();
-    cout<<"elements a searchPath()-ben VEGE" << endl;
-
-
-
-
-
-
-
     int count = 1;
     while (solution.empty()){//!finish){
         //1. éés 2. feltételek ellenőrzése:
         if(isSinkConnected(grid)){  //todo: feltételezzük hogy a source nem úgy van megadva hogy egy kimenete van és az egyből kapcsolódik a sink egyetlen kimenetéhez
+            cout<<"EGYEBKENT ERRE JON" << endl;
             if(haveOpenOutput(actualIdom, occupiedCoords)){
                 //KAPCS sink-hez és VAN kimenete az utolsónak
                 //todo: végiggondolni, most jobb ötlet híján kerüljön a goodSolutions-ba a grid
@@ -95,7 +77,7 @@ void Simulation::searchPath() {
                     //Ha nem üres az elements akkor onnan választunk
                     prevIdom = actualIdom;
                     actualIdom = elements[0];
-                    elements.pop_back();
+                    elements.erase(elements.begin());
                     connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom, occupiedCoords,
                             grid);
                     //todo: indul előlről a while
@@ -583,14 +565,61 @@ Directions Simulation::oppositeSide(Directions side) {
 
 ///Kritérium_1 \n Azt nézi meg hogy a sink összes dir-jéhez van e valami connectelve a gridben
 bool Simulation::isSinkConnected(vector<PipeIdom *> grid) { //todo: ez csak akkor működik ha egy sink idom van a rendszerben
+    bool rightOk = false;
+    bool upOk = false;
+    bool leftOk = false;
+    bool downOk = false;
+
     for (auto sinkDir: sink->getDirs()) {
-        for (auto idom: grid) {
-            if(idom->getDirs().contains(oppositeSide(sinkDir))){
-                return true;
-            }
+        pair<int, int> neighbourCoord = sink->getCoord();
+        switch (sinkDir) {
+            case RIGHT:
+                neighbourCoord.second++;
+                for (auto idom: grid) {
+                    if((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(RIGHT)))){
+                        rightOk = true;
+                    }
+                }
+                if(!rightOk){
+                    return false;
+                }
+                break;
+            case UP:
+                neighbourCoord.first--;
+                for (auto idom: grid) {
+                    if((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(UP)))){
+                        upOk = true;
+                    }
+                }
+                if(!upOk){
+                    return false;
+                }
+                break;
+            case LEFT:
+                neighbourCoord.second--;
+                for (auto idom: grid) {
+                    if((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(LEFT)))){
+                        leftOk = true;
+                    }
+                }
+                if(!leftOk){
+                    return false;
+                }
+                break;
+            case DOWN:
+                neighbourCoord.first++;
+                for (auto idom: grid) {
+                    if((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(DOWN)))){
+                        downOk = true;
+                    }
+                }
+                if(!downOk){
+                    return false;
+                }
+                break;
         }
     }
-    return false;
+    return true;
 }
 
 ///Van e kimenete az utoljára lerakott idom-nak vagyis a kritérium_2

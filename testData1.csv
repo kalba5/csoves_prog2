@@ -4,4 +4,4 @@ simplePipe,1,D,,,
 simplePipe,1,UL,,,
 simplePipe,1,RUL,,,
 source, 1, R, RED, 0, 0
-sink, 1, L, RED,1,2
+sink, 1, L, RED,1,3
