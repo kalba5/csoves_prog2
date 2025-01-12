@@ -34,9 +34,7 @@ Types PipeIdom::getType() const {
 }
 
 
-/**
- * @todo Törölni
- */
+//todo: Törölni
 void PipeIdom::printDirs() {
     for(auto it: dirs){
         cout << it << endl;

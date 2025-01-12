@@ -113,7 +113,9 @@ int main() {
 
 //BEOLVASAS VEGE
 //beolvasas_tesztelés:
+    cout<<"Print All Pipe Elements ELEJE" << endl;
     printAllPipeElements(simplePipes, valves, sources, sinks);
+    cout<<"Print All Pipe Elements VEGE" << endl;
 
 //todo: teszt, törölni
 

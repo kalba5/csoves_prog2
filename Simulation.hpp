@@ -18,7 +18,6 @@ using namespace std;
 class Simulation {
 private:
     vector<PipeIdom*> solution;
-
     vector<PipeIdom*> simplePipes;
     vector<PipeIdom*> valves;
     vector<PipeIdom*> sources;
@@ -33,11 +32,11 @@ private:
 
     bool isIn(vector<PipeIdom*> inThat, pair<int,int> onThatCoord);
     bool haveThatDirection(PipeIdom* lmnt, Directions dir);
-    bool isConnectedTo(vector<PipeIdom*> grid, pair<int, int> lmntCoord, Directions lmntDir);
-    bool isAllConnected(const vector<PipeIdom*> &grid, PipeIdom *sinkItem);
+    bool isConnectedTo(vector<PipeIdom*> grid, pair<int, int> idomCoord, Directions idomDir);
+    bool isAllConnected(const vector<PipeIdom*> &grid, PipeIdom *idom);
     void connect(pair<int, int>, Directions, PipeIdom*& actual);
     Directions chooseDirection(PipeIdom *idom, vector<pair<int, int>> occ_coords);
-    bool isBadSoulution(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions);
+    bool isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions);
     PipeIdom* firstLeak(vector<PipeIdom*> grid);
     Directions oppositeSide(Directions side);
     void rotateMore(PipeIdom* &actual, PipeIdom* previous);
