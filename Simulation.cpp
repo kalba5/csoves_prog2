@@ -73,11 +73,83 @@ void Simulation::searchPath() {
                         prevIdom = actualIdom;
                         actualIdom = stack[stack.size()-1];
                         stack.pop_back();
+
                         vector<Directions> tmp_prevDirs(prevIdom->getDirs().begin(), prevIdom->getDirs().end());
                         bool connecteltunk = true;
-                        for (int i = 0; i < 3; ++i) {
-                            //todo: if(canConnect)
+                        for (int i = 0; i <= 3; ++i) {
+                            int index;
+
+                            if (tmp_prevDirs.size() >= 1) {
+                                index = tmp_prevDirs.size() - 1;
+
+                                if (canConnect(actualIdom, prevIdom, tmp_prevDirs[index], grid)) {
+                                    connect(prevIdom->getCoord(), tmp_prevDirs[index], actualIdom, occupiedCoords);
+                                    tmp_prevDirs.pop_back();
+                                    if (isInBadSoulutions(grid, badSolutions)) {
+                                        if (i != 3) {
+                                            inverseConnect(actualIdom, grid, occupiedCoords);
+                                        }
+                                    }
+                                    else{
+                                        break;
+                                    }
+                                }
+                                else{
+                                    //ha nem tudjuk connectelni, canConnect-->false
+                                    tmp_prevDirs.pop_back();
+                                    if(i == 3){
+                                        connecteltunk = false;
+                                    }
+                                }
+                            }
+                            else{
+                                //a tmp_prevDirs üres
+                                connecteltunk = false;
+                                break;
+                            }
                         }
+
+                        bool tmp_wasInBad = false;
+                        if(connecteltunk and isInBadSoulutions(grid, badSolutions)){
+                            inverseConnect(actualIdom, grid, occupiedCoords);
+                            tmp_wasInBad = true;
+                        }
+                        else if(connecteltunk and !isInBadSoulutions(grid, badSolutions)){
+                            //todo: indul előlről a while!?
+                        }
+
+                        if(!connecteltunk or tmp_wasInBad){
+                            badSolutions.push_back(grid);
+                            if(!grid.empty()){
+                                actualIdom = grid[grid.size()-1];
+                                if(grid.size() == 1){
+                                    prevIdom = source;
+                                }
+                                else{
+                                    prevIdom = grid[grid.size()-2];
+                                }
+
+                                bool wasBreak = false;
+                                for (int i = 0; i < 4; ++i) {
+                                    rotateMore(actualIdom, prevIdom);
+                                    if(!isInBadSoulutions(grid, badSolutions)){
+                                        wasBreak = true;
+                                        break;
+                                    }
+                                }
+
+                                if(!wasBreak){
+                                    stack.push_back(actualIdom);
+                                    inverseConnect(actualIdom, grid, occupiedCoords);
+                                }
+
+                            }
+                            else{
+                                //Ez még nem 100% de ekkor az történne, hogy a source-ot kéne forgatni ami azt indikálja, hogy nincs megoldás.
+                                throw runtime_error("No possible solution!");
+                            }
+                        }
+
                     }
                     else{
                         //todo: ilyenkor mit kell csinálni???
@@ -205,7 +277,7 @@ Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> oc
  * @param prevsSelectedDir A prev-nek az a dir-je amihez csatlakoztatni akarunk
  * @param grid grid
  * @return true --> ha tudunk \n false --> ha nem tudunk
- * @warning Csak 1 source és 1 sink esetén működik
+ * @warning Csak 1 source és 1 sink esetén működik (de viszonylag könnyen át lehet írni)
  * @todo tesztelni kéne
  */
 bool Simulation::canConnect(PipeIdom *actual, PipeIdom *prev, Directions prevsSelectedDir, vector<PipeIdom *> grid) {//todo: tesztelni kéne
@@ -298,6 +370,34 @@ bool Simulation::canConnect(PipeIdom *actual, PipeIdom *prev, Directions prevsSe
         }
 
     return true;
+}
+
+/**
+ * @details Kitörli a kapott elemet a gridből, és a koordinátáját az occupiedCoords-ból
+ * @param idomToDelete Amit inverz konnektelni akarok
+ * @param grid grid
+ * @param occ_coords occupiedCoords
+ */
+void Simulation::inverseConnect(PipeIdom *idomToDelete, vector<PipeIdom *> &grid, vector<pair<int, int>> &occ_coords) {
+    int indexToDelete = -1;
+    for (int i = 0; i < grid.size(); ++i) {
+        if(grid[i] == idomToDelete){
+            indexToDelete = i;
+        }
+    }
+    if(indexToDelete >= 0 and indexToDelete < grid.size()){
+        grid.erase(grid.begin() + indexToDelete);
+    }
+
+    indexToDelete = -1;
+    for (int i = 0; i < occ_coords.size(); ++i) {
+        if(occ_coords[i] == idomToDelete->getCoord()){
+            indexToDelete = i;
+        }
+    }
+    if(indexToDelete >= 0 and indexToDelete < occ_coords.size()){
+        occ_coords.erase(occ_coords.begin() + indexToDelete);
+    }
 }
 
 /**
