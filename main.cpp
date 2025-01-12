@@ -10,6 +10,10 @@
 #include ".\cso_fajtak\Sink.hpp"
 #include "Simulation.hpp"
 
+#include <bits/stdc++.h>
+#include "vector"
+#include "set"
+
 using namespace std;
 
 ///Az egész programban a koordináták úgy vannak értelmezve, hogy\n
@@ -153,6 +157,8 @@ int main() {
 
 
 
+
+
     Simulation simulation(simplePipes, valves, sources, sinks);
     try {
         simulation.searchPath();
@@ -164,6 +170,7 @@ int main() {
         cout << "searchPath()-ben exception dobodott: ";
         cout << c.what() << endl;
     }
+
 
     return 0;
 }

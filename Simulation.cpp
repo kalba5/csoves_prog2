@@ -44,7 +44,7 @@ void Simulation::searchPath() {
 
 
     int count = 1;
-    while (solution.empty()){//!finish){
+    while (solution.empty()){
         //1. éés 2. feltételek ellenőrzése:
         if(isSinkConnected(grid)){  //todo: feltételezzük hogy a source nem úgy van megadva hogy egy kimenete van és az egyből kapcsolódik a sink egyetlen kimenetéhez
             cout<<"EGYEBKENT ERRE JON" << endl;
@@ -89,7 +89,8 @@ void Simulation::searchPath() {
                         actualIdom = stack[stack.size()-1];
                         stack.pop_back();
 
-                        vector<Directions> tmp_prevDirs(prevIdom->getDirs().begin(), prevIdom->getDirs().end());
+                        set<Directions> tmpPrevDirsSet = prevIdom->getDirs();
+                        vector<Directions> tmp_prevDirs(tmpPrevDirsSet.begin(), tmpPrevDirsSet.end());
                         bool connecteltunk = true;
                         for (int i = 0; i <= 3; ++i) {
                             int index;
@@ -175,7 +176,8 @@ void Simulation::searchPath() {
 
             }
             else{
-                //NEM kapcs sink-hez és NINCS kimenete az utolsónak
+                //NEM kapcs sink-hez és
+                //NINCS kimenete az utolsónak
                 if(elements.empty()){
                     badSolutions.push_back(grid);
                 }
@@ -624,47 +626,52 @@ bool Simulation::isSinkConnected(vector<PipeIdom *> grid) { //todo: ez csak akko
 
 ///Van e kimenete az utoljára lerakott idom-nak vagyis a kritérium_2
 bool Simulation::haveOpenOutput(PipeIdom* idom, vector<pair<int, int>> occ_coords) { //todo: TESZTELNI!!!
-    for (auto item: idom->getDirs()) {
-        pair<int,int> coord;
-        switch (item) {
+    for (auto dir: idom->getDirs()) {
+        pair<int,int> neighbourCoord = idom->getCoord();
+        bool neighbourOk = true;
+        switch (dir) {
             case RIGHT:
-                coord.first = idom->getCoord().first;
-                coord.second = idom->getCoord().second+1;
-
-                for (int i = 0; i < occ_coords.size(); ++i) {
-                    if(!(occ_coords[i] == coord)){
-                        return true;
+                neighbourCoord.second++;
+                for (const auto & occ_coord : occ_coords) {
+                    if(occ_coord == neighbourCoord){
+                        neighbourOk = false;
                     }
+                }
+                if(neighbourOk){
+                    return true;
                 }
                 break;
             case UP:
-                coord.first = idom->getCoord().first-1;
-                coord.second = idom->getCoord().second;
-
-                for (int i = 0; i < occ_coords.size(); ++i) {
-                    if(!(occ_coords[i] == coord)){
-                        return true;
+                neighbourCoord.first--;
+                for (const auto & occ_coord : occ_coords) {
+                    if(occ_coord == neighbourCoord){
+                        neighbourOk = false;
                     }
+                }
+                if(neighbourOk){
+                    return true;
                 }
                 break;
             case LEFT:
-                coord.first = idom->getCoord().first;
-                coord.second = idom->getCoord().second-1;
-
-                for (int i = 0; i < occ_coords.size(); ++i) {
-                    if(!(occ_coords[i] == coord)){
-                        return true;
+                neighbourCoord.second--;
+                for (const auto & occ_coord : occ_coords) {
+                    if(occ_coord == neighbourCoord){
+                        neighbourOk = false;
                     }
+                }
+                if(neighbourOk){
+                    return true;
                 }
                 break;
             case DOWN:
-                coord.first = idom->getCoord().first+1;
-                coord.second = idom->getCoord().second;
-
-                for (int i = 0; i < occ_coords.size(); ++i) {
-                    if(!(occ_coords[i] == coord)){
-                        return true;
+                neighbourCoord.first++;
+                for (const auto & occ_coord : occ_coords) {
+                    if(occ_coord == neighbourCoord){
+                        neighbourOk = false;
                     }
+                }
+                if(neighbourOk){
+                    return true;
                 }
                 break;
         }
