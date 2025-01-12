@@ -64,9 +64,7 @@ void Simulation::searchPath() {
                     prevIdom = actualIdom;
                     actualIdom = elements[0];
                     elements.pop_back();
-                    connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom,
-                            vector<pair<int, int>>());
-                    occupiedCoords.push_back(actualIdom->getCoord());
+                    connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom, occupiedCoords);
                     //todo: indul előlről a while
                 }
                 else{
@@ -75,6 +73,11 @@ void Simulation::searchPath() {
                         prevIdom = actualIdom;
                         actualIdom = stack[stack.size()-1];
                         stack.pop_back();
+                        vector<Directions> tmp_prevDirs(prevIdom->getDirs().begin(), prevIdom->getDirs().end());
+                        bool connecteltunk = true;
+                        for (int i = 0; i < 3; ++i) {
+                            //todo: if(canConnect)
+                        }
                     }
                     else{
                         //todo: ilyenkor mit kell csinálni???
@@ -190,6 +193,111 @@ Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> oc
     }
     //Ha nem talál szabad irányt, kivételt dob
     throw std::runtime_error("No available direction to connect!");
+}
+
+/**
+ * @details Megnézi, hogy lehet-e connectelni az actual-t a prev-nek a választott dir-jéhez.\n
+ * Azt is vizsgálja hogy üres-e a szükséges koordináta,\n illetve azt is hogy ha arra a koordinátára lerakjuk az idomot
+ * akkor a többi grid-en lévő idommal nem lesz e érvénytelen csatlakozás, tehát pl nem lesz-e olyan hogy az actual egyik
+ * kimenete egy szomszédos idomnak a falához és nem kimenetéhez csatlakozik
+ * @param actual Amit csatlakoztatni akarunk
+ * @param prev Amihez csatlakoztatni akarunk
+ * @param prevsSelectedDir A prev-nek az a dir-je amihez csatlakoztatni akarunk
+ * @param grid grid
+ * @return true --> ha tudunk \n false --> ha nem tudunk
+ * @warning Csak 1 source és 1 sink esetén működik
+ * @todo tesztelni kéne
+ */
+bool Simulation::canConnect(PipeIdom *actual, PipeIdom *prev, Directions prevsSelectedDir, vector<PipeIdom *> grid) {//todo: tesztelni kéne
+    vector<PipeIdom*> allIdoms;
+    allIdoms.push_back(source);
+    allIdoms.insert(allIdoms.end(), grid.begin(), grid.end());
+    allIdoms.push_back(sink);
+
+    pair<int, int> actualCoord = prev->getCoord();
+
+        switch (prevsSelectedDir) {
+            case RIGHT:
+                //coord = {idom->getCoord().first, idom->getCoord().second + 1};
+                actualCoord.second++;
+                break;
+            case UP:
+                //coord = {idom->getCoord().first - 1, idom->getCoord().second};
+                actualCoord.first--;
+                break;
+            case LEFT:
+                //coord = {idom->getCoord().first, idom->getCoord().second - 1};
+                actualCoord.second--;
+                break;
+            case DOWN:
+                //coord = {idom->getCoord().first + 1, idom->getCoord().second};
+                actualCoord.first++;
+                break;
+        }
+
+        //megnézzük hogy szabad-e az óhajtott koordináta
+        bool isInOcc = false;
+        for (const auto& oc : allIdoms) {
+            if (actualCoord == oc->getCoord()) {
+                isInOcc = true;
+                break;
+            }
+        }
+
+
+        //ha szabad az óhajtott koordináta, megnézzük, hogy a szomszédokkal nem lesz-e bunyó
+        if(!isInOcc){
+            for (auto actDir: actual->getDirs()) {
+                pair<int, int> neighbourCoord;
+                switch (actDir) {
+                    case RIGHT:
+                        neighbourCoord = {actualCoord.first, actualCoord.second+1};
+                        for (auto idom: allIdoms) {
+                            if(neighbourCoord == idom->getCoord()){
+                                if(!idom->getDirs().contains(LEFT)){
+                                    return false;
+                                }
+                            }
+                        }
+                        break;
+                    case UP:
+                        neighbourCoord = {actualCoord.first-1, actualCoord.second};
+                        for (auto idom: allIdoms) {
+                            if(neighbourCoord == idom->getCoord()){
+                                if(!idom->getDirs().contains(DOWN)){
+                                    return false;
+                                }
+                            }
+                        }
+                        break;
+                    case LEFT:
+                        neighbourCoord = {actualCoord.first, actualCoord.second-1};
+                        for (auto idom: allIdoms) {
+                            if(neighbourCoord == idom->getCoord()){
+                                if(!idom->getDirs().contains(RIGHT)){
+                                    return false;
+                                }
+                            }
+                        }
+                        break;
+                    case DOWN:
+                        neighbourCoord = {actualCoord.first+1, actualCoord.second};
+                        for (auto idom: allIdoms) {
+                            if(neighbourCoord == idom->getCoord()){
+                                if(!idom->getDirs().contains(UP)){
+                                    return false;
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+        else{
+            return false;
+        }
+
+    return true;
 }
 
 /**
@@ -310,6 +418,11 @@ PipeIdom* Simulation::firstLeak(vector<PipeIdom *> grid) { ///todo: teszt. Majd 
     return nullptr;
 }
 
+/**
+ * @details Visszatér egy dir ellentétjével. Pl.: UP-ból DOWN lesz.
+ * @param side választott dir
+ * @return A side ellentétje.
+ */
 Directions Simulation::oppositeSide(Directions side) {
     switch (side) {
         case RIGHT:

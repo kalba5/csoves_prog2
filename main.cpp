@@ -12,6 +12,9 @@
 
 using namespace std;
 
+///Az egész programban a koordináták úgy vannak értelmezve, hogy\n
+///az ELSŐ koordináta adja meg, hogy hányadik SOR,\n
+///a MÁSODIK koordináta adja meg, hogy hányadik OSZLOP
 const string fileName = "../testData1.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
 
 void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valves, vector<PipeIdom*> sources, vector<PipeIdom*> sinks){

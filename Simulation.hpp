@@ -36,6 +36,7 @@ private:
     bool isAllConnected(const vector<PipeIdom*> &grid, PipeIdom *idom);
     void connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom *&actual, vector<pair<int, int >> &occ_coords);
     Directions chooseDirection(PipeIdom *idom, vector<pair<int, int>> occ_coords);
+    bool canConnect(PipeIdom* actual, PipeIdom* prev, Directions prevsSelectedDir, vector<PipeIdom*> grid);
     bool isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions);
     PipeIdom* firstLeak(vector<PipeIdom*> grid);
     Directions oppositeSide(Directions side);
