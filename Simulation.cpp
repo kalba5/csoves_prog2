@@ -123,6 +123,7 @@ void Simulation::searchPath() {
                             else{
                                 //a tmp_prevDirs üres
                                 connecteltunk = false;
+
                                 break;
                             }
                         }
@@ -137,7 +138,6 @@ void Simulation::searchPath() {
                         }
 
                         if(!connecteltunk or tmp_wasInBad){
-                            //badSolutions.push_back(grid);
                             addGridToSolutions(grid, badSolutions);
                             if(!grid.empty()){
                                 actualIdom = grid[grid.size()-1];
@@ -448,9 +448,9 @@ bool Simulation::isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdo
             {
                 allGood = false;
             }
-            if(allGood){
-                return true;
-            }
+        }
+        if(allGood){
+            return true;
         }
     }
     return false;
