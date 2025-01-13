@@ -40,6 +40,39 @@ void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valve
 }
 
 
+
+
+
+
+
+
+
+bool isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions){
+    for (int i = 0; i < badSolutions.size(); i++)
+    {
+        bool allGood = true;
+        for (int j = 0; j < grid.size(); j++)
+        {
+            if (badSolutions[i][j]->getCoord() != grid[j]->getCoord() or badSolutions[i][j]->getDirs() != grid[j]->getDirs())
+            {
+                allGood = false;
+            }
+            if(allGood){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+
+
+
+
+
+
+
 int main() {
 ///Az adatokat a mellékelt (data.csv) struktúrájú fájlból tudja a program beolvasni.\n
 ///Fejléc kötelező és az adatok sorrendje nem változhat a (data.csv)-hez képest
@@ -169,6 +202,7 @@ int main() {
         cout << "searchPath()-ben exception dobodott: ";
         cout << c.what() << endl;
     }
+
 
 
     return 0;

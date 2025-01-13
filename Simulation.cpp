@@ -438,14 +438,17 @@ void Simulation::inverseConnect(PipeIdom *idomToDelete, vector<PipeIdom *> &grid
  * @param badSolutions
  * @return Ha igaz akkor benne van, ha nem akkor nincs benne
  */
-bool Simulation::isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions){ //todo: nincs tesztelve
-    //todo: ha lassú lenne a program, először ezt kell átalakítani hash függvényes, unordered_set-es témára. A chatGpt már megírta csak implementálni kell.
+bool Simulation::isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions){
     for (int i = 0; i < badSolutions.size(); i++)
     {
+        bool allGood = true;
         for (int j = 0; j < grid.size(); j++)
         {
-            if (badSolutions[i][j]->getCoord() == grid[j]->getCoord() and badSolutions[i][j]->getDirs() == grid[j]->getDirs())
+            if (badSolutions[i][j]->getCoord() != grid[j]->getCoord() or badSolutions[i][j]->getDirs() != grid[j]->getDirs())
             {
+                allGood = false;
+            }
+            if(allGood){
                 return true;
             }
         }

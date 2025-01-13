@@ -20,6 +20,8 @@ public:
     PipeIdom* clone() const override {
         return new SimplePipe(*this);
     }
+
+
 };
 
 
