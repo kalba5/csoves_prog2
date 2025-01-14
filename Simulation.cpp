@@ -308,7 +308,7 @@ Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> oc
  * @param prev Amihez csatlakoztatni akarunk
  * @param prevsSelectedDir A prev-nek az a dir-je amihez csatlakoztatni akarunk
  * @param grid grid
- * @return true --> ha tudunk \n false --> ha nem tudunk
+ * @return true --> ha tudunk, vagyis legalább 1 olyan forgatottja van az actualnak amiben connectelhető \n false --> ha nem tudunk
  * @warning Csak 1 source és 1 sink esetén működik (de viszonylag könnyen át lehet írni)
  * @todo tesztelni kéne
  */
@@ -318,90 +318,100 @@ bool Simulation::canConnect(PipeIdom *actual, PipeIdom *prev, Directions prevsSe
     allIdoms.insert(allIdoms.end(), grid.begin(), grid.end());
     allIdoms.push_back(sink);
 
-    pair<int, int> actualCoord = prev->getCoord();
+    pair<int, int> actualCoord = prev->getCoord();  //itt azert a prevCoord-al lesz egyenlo mivel kesobb ehez képest változtatjuk
+    //beállítja az actualCoordot attól függően hogy a prev melyik oldalán lesz az actual
+    switch (prevsSelectedDir) {
+        case RIGHT:
+            //coord = {idom->getCoord().first, idom->getCoord().second + 1};
+            actualCoord.second++;
+            break;
+        case UP:
+            //coord = {idom->getCoord().first - 1, idom->getCoord().second};
+            actualCoord.first--;
+            break;
+        case LEFT:
+            //coord = {idom->getCoord().first, idom->getCoord().second - 1};
+            actualCoord.second--;
+            break;
+        case DOWN:
+            //coord = {idom->getCoord().first + 1, idom->getCoord().second};
+            actualCoord.first++;
+            break;
+    }
 
-        switch (prevsSelectedDir) {
-            case RIGHT:
-                //coord = {idom->getCoord().first, idom->getCoord().second + 1};
-                actualCoord.second++;
-                break;
-            case UP:
-                //coord = {idom->getCoord().first - 1, idom->getCoord().second};
-                actualCoord.first--;
-                break;
-            case LEFT:
-                //coord = {idom->getCoord().first, idom->getCoord().second - 1};
-                actualCoord.second--;
-                break;
-            case DOWN:
-                //coord = {idom->getCoord().first + 1, idom->getCoord().second};
-                actualCoord.first++;
-                break;
-        }
-
-        //megnézzük hogy szabad-e az óhajtott koordináta
-        bool isInOcc = false;
-        for (const auto& oc : allIdoms) {
-            if (actualCoord == oc->getCoord()) {
-                isInOcc = true;
-                break;
-            }
-        }
-
-
-        //ha szabad az óhajtott koordináta, megnézzük, hogy a szomszédokkal nem lesz-e bunyó
-        if(!isInOcc){
-            for (auto actDir: actual->getDirs()) {
-                pair<int, int> neighbourCoord;
-                switch (actDir) {
-                    case RIGHT:
-                        neighbourCoord = {actualCoord.first, actualCoord.second+1};
-                        for (auto idom: allIdoms) {
-                            if(neighbourCoord == idom->getCoord()){
-                                if(!idom->getDirs().contains(LEFT)){
-                                    return false;
-                                }
-                            }
-                        }
-                        break;
-                    case UP:
-                        neighbourCoord = {actualCoord.first-1, actualCoord.second};
-                        for (auto idom: allIdoms) {
-                            if(neighbourCoord == idom->getCoord()){
-                                if(!idom->getDirs().contains(DOWN)){
-                                    return false;
-                                }
-                            }
-                        }
-                        break;
-                    case LEFT:
-                        neighbourCoord = {actualCoord.first, actualCoord.second-1};
-                        for (auto idom: allIdoms) {
-                            if(neighbourCoord == idom->getCoord()){
-                                if(!idom->getDirs().contains(RIGHT)){
-                                    return false;
-                                }
-                            }
-                        }
-                        break;
-                    case DOWN:
-                        neighbourCoord = {actualCoord.first+1, actualCoord.second};
-                        for (auto idom: allIdoms) {
-                            if(neighbourCoord == idom->getCoord()){
-                                if(!idom->getDirs().contains(UP)){
-                                    return false;
-                                }
-                            }
-                        }
-                        break;
-                }
-            }
-        }
-        else{
+    //megnézzük hogy szabad-e az óhajtott koordináta
+    bool isInOcc = false;
+    for (const auto& oc : allIdoms) {
+        if (actualCoord == oc->getCoord()) {
+            isInOcc = true;
             return false;
         }
+    }
+    //ha szabad az óhajtott koordináta, megnézzük hogy az actual-t lehet-e úgy forgatni hogy a szomszédokkal ne legyen bunyó
+    if(!isInOcc){
+        for (int i = 0; i < 4; ++i) {
+            actual->rotate();
+            if(actual->getDirs().contains(oppositeSide(prevsSelectedDir))){
+                bool rightOk = true;
+                bool upOk = true;
+                bool leftOk = true;
+                bool downOk=true;
 
-    return true;
+                for (auto actDir: actual->getDirs()) {
+                    pair<int, int> neighbourCoord;
+                    switch (actDir) {
+                        case RIGHT:
+                            neighbourCoord = {actualCoord.first, actualCoord.second+1};
+                            for (auto idom: allIdoms) {
+                                if(neighbourCoord == idom->getCoord()){
+                                    if(!idom->getDirs().contains(LEFT)){
+                                        rightOk = false;
+                                    }
+                                }
+                            }
+                            break;
+                        case UP:
+                            neighbourCoord = {actualCoord.first-1, actualCoord.second};
+                            for (auto idom: allIdoms) {
+                                if(neighbourCoord == idom->getCoord()){
+                                    if(!idom->getDirs().contains(DOWN)){
+                                        upOk = false;
+                                    }
+                                }
+                            }
+                            break;
+                        case LEFT:
+                            neighbourCoord = {actualCoord.first, actualCoord.second-1};
+                            for (auto idom: allIdoms) {
+                                if(neighbourCoord == idom->getCoord()){
+                                    if(!idom->getDirs().contains(RIGHT)){
+                                        leftOk = false;
+                                    }
+                                }
+                            }
+                            break;
+                        case DOWN:
+                            neighbourCoord = {actualCoord.first+1, actualCoord.second};
+                            for (auto idom: allIdoms) {
+                                if(neighbourCoord == idom->getCoord()){
+                                    if(!idom->getDirs().contains(UP)){
+                                        downOk = false;
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                if(rightOk and upOk and leftOk and downOk){
+                    return true;
+                }
+            }
+            //else: forgatunk mégegyet
+        }
+    }
+
+    return false;
 }
 
 /**
