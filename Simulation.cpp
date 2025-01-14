@@ -47,11 +47,10 @@ void Simulation::searchPath() {
     while (solution.empty()){
         //1. éés 2. feltételek ellenőrzése:
         if(isSinkConnected(grid)){  //todo: feltételezzük hogy a source nem úgy van megadva hogy egy kimenete van és az egyből kapcsolódik a sink egyetlen kimenetéhez
-            cout<<"EGYEBKENT ERRE JON" << endl;
+            cout<<"SINK CONNECTELVE" << endl; //todo: törölni
             if(haveOpenOutput(actualIdom, occupiedCoords)){
                 //KAPCS sink-hez és VAN kimenete az utolsónak
-                //todo: végiggondolni, most jobb ötlet híján kerüljön a goodSolutions-ba a grid
-                //goodSolutions.push_back(grid);
+                //todo: végiggondolni, most jobb ötlet híján kerüljön a goodSolutions-ba a grid, itt jön képbe a firstLeak
                 addGridToSolutions(grid, goodSolutions);
             }
             else{
@@ -161,6 +160,14 @@ void Simulation::searchPath() {
                                 if(!wasBreak){
                                     stack.push_back(actualIdom);
                                     inverseConnect(actualIdom, grid, occupiedCoords);
+
+                                    actualIdom = grid[grid.size()-1];
+                                    if(grid.size() == 1){
+                                        prevIdom = source;
+                                    }
+                                    else{
+                                        prevIdom = grid[grid.size()-2];
+                                    }
                                 }
 
                             }
