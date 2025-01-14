@@ -123,7 +123,6 @@ void Simulation::searchPath() {
                             else{
                                 //a tmp_prevDirs üres
                                 connecteltunk = false;
-
                                 break;
                             }
                         }
@@ -138,6 +137,7 @@ void Simulation::searchPath() {
                         }
 
                         if(!connecteltunk or tmp_wasInBad){
+                            stack.push_back(actualIdom); //todo:teszt, modositas:hetfo_hajnal
                             addGridToSolutions(grid, badSolutions);
                             if(!grid.empty()){
                                 actualIdom = grid[grid.size()-1];
@@ -154,6 +154,7 @@ void Simulation::searchPath() {
                                     if(!isInBadSoulutions(grid, badSolutions)){
                                         wasBreak = true;
                                         break;
+                                        //todo: indul előlről a ciklus
                                     }
                                 }
 
@@ -451,6 +452,10 @@ void Simulation::inverseConnect(PipeIdom *idomToDelete, vector<PipeIdom *> &grid
 bool Simulation::isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions){
     for (int i = 0; i < badSolutions.size(); i++)
     {
+        if (badSolutions[i].size() != grid.size()) {
+            continue; // Ha nem egyeznek a méretek, ugorj a következő elemre.
+        }
+
         bool allGood = true;
         for (int j = 0; j < grid.size(); j++)
         {
