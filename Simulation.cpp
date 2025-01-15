@@ -1,5 +1,7 @@
 #include "Simulation.hpp"
 #include "stdexcept"
+#include <algorithm>
+#include <iterator>
 /**
  * @brief Simulation konstruktora
  * @param sp
@@ -45,13 +47,29 @@ void Simulation::searchPath() {
 
     int count = 1;
     while (solution.empty()){
+        bool fasztudjami = false;
         //1. éés 2. feltételek ellenőrzése:
         if(isSinkConnected(grid)){  //todo: feltételezzük hogy a source nem úgy van megadva hogy egy kimenete van és az egyből kapcsolódik a sink egyetlen kimenetéhez
             cout<<"SINK CONNECTELVE" << endl; //todo: törölni
+            if(firstLeak(grid) == nullptr){
+                solution = grid;
+            }
             if(haveOpenOutput(actualIdom, occupiedCoords)){
                 //KAPCS sink-hez és VAN kimenete az utolsónak
                 //todo: végiggondolni, most jobb ötlet híján kerüljön a goodSolutions-ba a grid, itt jön képbe a firstLeak
                 addGridToSolutions(grid, goodSolutions);
+
+                //todo: itt kezdodik a mokolas kedd éjjel
+                fasztudjami = true;
+                actualIdom = firstLeak(grid);
+                auto it = find(grid.begin(), grid.end(), actualIdom);
+                int actualIndex = distance(grid.begin(), it);
+                if(actualIndex == 0){
+                    prevIdom = source;
+                }
+                else{
+                    prevIdom = grid[actualIndex - 1];
+                }
             }
             else{
                 //KAPCS sink-hez és NICNS kimenete az utolsónak
@@ -69,7 +87,8 @@ void Simulation::searchPath() {
 
             }
         }
-        else{
+
+        if(!isSinkConnected(grid) or fasztudjami){
             if(haveOpenOutput(actualIdom, occupiedCoords)){
                 //NEM kapcs sink-hez és VAN kimenete az utolsónak\n
                 //--> választunk egy új actualIdom-ot

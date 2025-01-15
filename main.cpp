@@ -11,7 +11,7 @@
 #include "Simulation.hpp"
 
 #include <bits/stdc++.h>
-#include "vector"
+#include <chrono> // Időméréshez szükséges todo: törölni
 #include "set"
 
 using namespace std;
@@ -19,7 +19,7 @@ using namespace std;
 ///Az egész programban a koordináták úgy vannak értelmezve, hogy\n
 ///az ELSŐ koordináta adja meg, hogy hányadik SOR,\n
 ///a MÁSODIK koordináta adja meg, hogy hányadik OSZLOP
-const string fileName = "../testData1.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
+const string fileName = "../testData_nagyKanyargo.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
 
 void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valves, vector<PipeIdom*> sources, vector<PipeIdom*> sinks){
     for (int i = 0; i < simplePipes.size(); ++i) {
@@ -76,6 +76,10 @@ bool isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolu
 int main() {
 ///Az adatokat a mellékelt (data.csv) struktúrájú fájlból tudja a program beolvasni.\n
 ///Fejléc kötelező és az adatok sorrendje nem változhat a (data.csv)-hez képest
+
+
+    auto start_time = std::chrono::high_resolution_clock::now(); //todo: törölni
+
 
 //Ezekben a vectorokban vannak eltárolva a rendelkezésre álló idomok.
     vector<PipeIdom*> simplePipes;
@@ -186,8 +190,8 @@ int main() {
         sP.push_back(sP4);
         so.push_back(source1);
         si.push_back(sink1);
-    }
 
+    }
 
 
 
@@ -204,6 +208,11 @@ int main() {
     }
 
 
+    // Befejezési időpont rögzítése
+    auto end_time = std::chrono::high_resolution_clock::now();
+    // Futási idő kiszámítása
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+    std::cout << "A program futasi ideje: " << duration.count() << " ms" << std::endl;
 
     return 0;
 }
