@@ -51,7 +51,6 @@ void Simulation::searchPath() {
         bool sinkConnectedAndHaveOpen = false;
         //1. éés 2. feltételek ellenőrzése:
         if(isSinkConnected(grid)){  //todo: feltételezzük hogy a source nem úgy van megadva hogy egy kimenete van és az egyből kapcsolódik a sink egyetlen kimenetéhez
-            cout<<"SINK CONNECTELVE" << endl; //todo: törölni
             if(firstLeak(grid) == nullptr){
                 solution = grid;
             }
@@ -111,10 +110,6 @@ void Simulation::searchPath() {
                 }
 
 
-
-
-
-
                 //NEM kapcs sink-hez és VAN kimenete az utolsónak\n
                 //--> választunk egy új actualIdom-ot
                 if(!elements.empty()){
@@ -128,69 +123,60 @@ void Simulation::searchPath() {
                 }
                 else{
                     if(!stack.empty()){
-                        //Ha üres az elements akkor a stack-ből választunk (ha tudunk)
-                        if(actualIdom == source){
-                            prevIdom = actualIdom;
-                            int randomIndex = rand() % stack.size() - 1;
-                            actualIdom = stack[randomIndex];
-                            stack.erase(stack.begin() + randomIndex);
-                        }
-                        else {
-                            prevIdom = actualIdom;
-                            actualIdom = stack[stack.size() - 1];
-                            stack.pop_back();
-                        }
-
-
-                        set<Directions> tmpPrevDirsSet = prevIdom->getDirs();
-                        vector<Directions> tmp_prevDirs(tmpPrevDirsSet.begin(), tmpPrevDirsSet.end());
+                        //Ha üres az elements akkor a stack-ből választunk (ha tudunk, ha nem akkor forgatunk vagy vége)
+                        prevIdom = actualIdom;
+                        int stackIdomIndex;
+                        set<Directions> prevDirsSet = prevIdom->getDirs();
+                        vector<Directions> prevDirsVec(prevDirsSet.begin(), prevDirsSet.end());
                         bool connecteltunk = true;
-                        for (int i = 0; i <= 3; ++i) {
-                            int index;
 
-                            if (tmp_prevDirs.size() >= 1) {
-                                index = tmp_prevDirs.size() - 1;
+                        for (int i = 0; i < stack.size(); ++i) {
+                            stackIdomIndex = stack.size()-1-i;
+                            actualIdom = stack[stackIdomIndex];
 
-                                if (canConnect(actualIdom, prevIdom, tmp_prevDirs[index], grid)) {
-                                    connect(prevIdom->getCoord(), tmp_prevDirs[index], actualIdom, occupiedCoords,
-                                            grid);
-                                    tmp_prevDirs.pop_back();
-                                    if (isInBadSoulutions(grid, badSolutions)) {
-                                        if (i != 3) {
+                            for (int j = 0; j < 4; ++j) {
+                                int prevDirsIndex;
+
+                                if (!prevDirsVec.empty()) {
+                                    prevDirsIndex = prevDirsVec.size() - 1;
+
+                                    if (canConnect(actualIdom, prevIdom, prevDirsVec[prevDirsIndex], grid)) {
+                                        connect(prevIdom->getCoord(), prevDirsVec[prevDirsIndex], actualIdom, occupiedCoords,
+                                                grid);
+                                        prevDirsVec.pop_back();
+                                        if (isInBadSoulutions(grid, badSolutions)) {
                                             inverseConnect(actualIdom, grid, occupiedCoords);
+                                            connecteltunk = false;
+                                        }
+                                        else{
+                                            connecteltunk = true;
+                                            break;
                                         }
                                     }
                                     else{
-                                        break;
-                                    }
-                                }
-                                else{
-                                    //ha nem tudjuk connectelni, canConnect-->false
-                                    tmp_prevDirs.pop_back();
-                                    if(i == 3){
+                                        //ha nem tudjuk connectelni, canConnect-->false
+                                        prevDirsVec.pop_back();
                                         connecteltunk = false;
                                     }
                                 }
+                                else{
+                                    //a prevDirsVec üres
+                                    connecteltunk = false;
+                                    break;
+                                }
                             }
-                            else{
-                                //a tmp_prevDirs üres
-                                connecteltunk = false;
+                            if(connecteltunk){
                                 break;
                             }
                         }
 
-                        bool tmp_wasInBad = false;
-                        if(connecteltunk and isInBadSoulutions(grid, badSolutions)){
-                            inverseConnect(actualIdom, grid, occupiedCoords);
-                            tmp_wasInBad = true;
+                        if(connecteltunk){
+                            stack.erase(stack.begin() + stackIdomIndex);
                         }
-                        else if(connecteltunk and !isInBadSoulutions(grid, badSolutions)){
-                            //todo: indul előlről a while!?
-                        }
-
-                        if(!connecteltunk or tmp_wasInBad){
-                            stack.push_back(actualIdom); //todo:teszt, modositas:hetfo_hajnal
+                        else{
+                            //ha nem tudtunk connectelni --> forgatunk
                             addGridToSolutions(grid, badSolutions);
+
                             if(!grid.empty()){
                                 actualIdom = grid[grid.size()-1];
                                 if(grid.size() == 1){
@@ -277,8 +263,14 @@ void Simulation::searchPath() {
     //WHILE VÉGE
 
 
-
-    //solution = goodSolutions[goodSolutions.size()-1];
+    //sloution kiiratása
+    cout<<"-~-~-~SOLUTION~-~-~-"<<endl;
+    source->printIt();
+    for (auto idom: solution) {
+        idom->printIt();
+    }
+    sink->printIt();
+    cout<<"-~-SOLUTION VEGE-~-"<<endl;
 }
 
 
