@@ -2,6 +2,7 @@
 #include "stdexcept"
 #include <algorithm>
 #include <iterator>
+#include <cstdlib>
 /**
  * @brief Simulation konstruktora
  * @param sp
@@ -47,7 +48,7 @@ void Simulation::searchPath() {
 
     int count = 1;
     while (solution.empty()){
-        bool fasztudjami = false;
+        bool sinkConnectedAndHaveOpen = false;
         //1. éés 2. feltételek ellenőrzése:
         if(isSinkConnected(grid)){  //todo: feltételezzük hogy a source nem úgy van megadva hogy egy kimenete van és az egyből kapcsolódik a sink egyetlen kimenetéhez
             cout<<"SINK CONNECTELVE" << endl; //todo: törölni
@@ -60,7 +61,7 @@ void Simulation::searchPath() {
                 addGridToSolutions(grid, goodSolutions);
 
                 //todo: itt kezdodik a mokolas kedd éjjel
-                fasztudjami = true;
+                sinkConnectedAndHaveOpen = true;
                 actualIdom = firstLeak(grid);
                 auto it = find(grid.begin(), grid.end(), actualIdom);
                 int actualIndex = distance(grid.begin(), it);
@@ -88,8 +89,32 @@ void Simulation::searchPath() {
             }
         }
 
-        if(!isSinkConnected(grid) or fasztudjami){
+        if(!isSinkConnected(grid) or sinkConnectedAndHaveOpen){
             if(haveOpenOutput(actualIdom, occupiedCoords)){
+
+                if(elements.empty() and stack.empty()){
+                    addGridToSolutions(grid, badSolutions);
+                    stack.push_back(grid[grid.size()-1]);
+                    inverseConnect(grid[grid.size()-1], grid, occupiedCoords);
+
+                    if(grid.size() == 0){
+                        //ilyen eset nem lehet
+                    }
+                    else if(grid.size() == 1) {
+                        actualIdom = grid[0];
+                        prevIdom = source;
+                    }
+                    else{
+                        actualIdom = grid[grid.size()-1];
+                        prevIdom = grid[grid.size()-2];
+                    }
+                }
+
+
+
+
+
+
                 //NEM kapcs sink-hez és VAN kimenete az utolsónak\n
                 //--> választunk egy új actualIdom-ot
                 if(!elements.empty()){
@@ -104,9 +129,18 @@ void Simulation::searchPath() {
                 else{
                     if(!stack.empty()){
                         //Ha üres az elements akkor a stack-ből választunk (ha tudunk)
-                        prevIdom = actualIdom;
-                        actualIdom = stack[stack.size()-1];
-                        stack.pop_back();
+                        if(actualIdom == source){
+                            prevIdom = actualIdom;
+                            int randomIndex = rand() % stack.size() - 1;
+                            actualIdom = stack[randomIndex];
+                            stack.erase(stack.begin() + randomIndex);
+                        }
+                        else {
+                            prevIdom = actualIdom;
+                            actualIdom = stack[stack.size() - 1];
+                            stack.pop_back();
+                        }
+
 
                         set<Directions> tmpPrevDirsSet = prevIdom->getDirs();
                         vector<Directions> tmp_prevDirs(tmpPrevDirsSet.begin(), tmpPrevDirsSet.end());
@@ -180,11 +214,18 @@ void Simulation::searchPath() {
                                     stack.push_back(actualIdom);
                                     inverseConnect(actualIdom, grid, occupiedCoords);
 
-                                    actualIdom = grid[grid.size()-1];
-                                    if(grid.size() == 1){
+
+
+                                    if(grid.empty()){
+                                        actualIdom = source;
+                                        prevIdom = source;
+                                    }
+                                    else if(grid.size() == 1){
+                                        actualIdom = grid[grid.size()-1];
                                         prevIdom = source;
                                     }
                                     else{
+                                        actualIdom = grid[grid.size()-1];
                                         prevIdom = grid[grid.size()-2];
                                     }
                                 }
