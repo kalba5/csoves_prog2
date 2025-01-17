@@ -48,7 +48,8 @@ void PipeIdom::setCoord(int a, int b) {
 
 bool PipeIdom::operator==(const PipeIdom &other) const {
     return dirs == other.dirs &&
-           coord == other.coord;
+           coord.first == other.coord.first &&
+           coord.second == other.coord.second;
 }
 
 

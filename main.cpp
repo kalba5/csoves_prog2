@@ -19,7 +19,7 @@ using namespace std;
 ///Az egész programban a koordináták úgy vannak értelmezve, hogy\n
 ///az ELSŐ koordináta adja meg, hogy hányadik SOR,\n
 ///a MÁSODIK koordináta adja meg, hogy hányadik OSZLOP
-const string fileName = "../testData1.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
+const string fileName = "../testData_nagyKanyargo.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
 
 void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valves, vector<PipeIdom*> sources, vector<PipeIdom*> sinks){
     for (int i = 0; i < simplePipes.size(); ++i) {
@@ -38,38 +38,6 @@ void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valve
         sinks[i]->printIt();
     }
 }
-
-
-
-
-
-
-
-
-
-bool isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions){
-    for (int i = 0; i < badSolutions.size(); i++)
-    {
-        bool allGood = true;
-        for (int j = 0; j < grid.size(); j++)
-        {
-            if (badSolutions[i][j]->getCoord() != grid[j]->getCoord() or badSolutions[i][j]->getDirs() != grid[j]->getDirs())
-            {
-                allGood = false;
-            }
-            if(allGood){
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-
-
-
-
-
 
 
 
@@ -190,6 +158,13 @@ int main() {
         sP.push_back(sP4);
         so.push_back(source1);
         si.push_back(sink1);
+
+
+        set<Directions> sourceSet;
+        sourceSet.insert(RIGHT);
+        Source* source = new Source(sourceSet, 0, -1, "R");
+        vector<PipeIdom*> grid;
+
 
     }
 

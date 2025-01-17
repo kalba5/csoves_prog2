@@ -126,23 +126,23 @@ void Simulation::searchPath() {
                         //Ha üres az elements akkor a stack-ből választunk (ha tudunk, ha nem akkor forgatunk vagy vége)
                         prevIdom = actualIdom;
                         int stackIdomIndex;
-                        set<Directions> prevDirsSet = prevIdom->getDirs();
-                        vector<Directions> prevDirsVec(prevDirsSet.begin(), prevDirsSet.end());
+
                         bool connecteltunk = true;
 
                         for (int i = 0; i < stack.size(); ++i) {
                             stackIdomIndex = stack.size()-1-i;
                             actualIdom = stack[stackIdomIndex];
-
                             for (int j = 0; j < 4; ++j) {
                                 int prevDirsIndex;
+
+                                set<Directions> prevDirsSet = prevIdom->getDirs();
+                                vector<Directions> prevDirsVec(prevDirsSet.begin(), prevDirsSet.end());
 
                                 if (!prevDirsVec.empty()) {
                                     prevDirsIndex = prevDirsVec.size() - 1;
 
                                     if (canConnect(actualIdom, prevIdom, prevDirsVec[prevDirsIndex], grid)) {
-                                        connect(prevIdom->getCoord(), prevDirsVec[prevDirsIndex], actualIdom, occupiedCoords,
-                                                grid);
+                                        connect(prevIdom->getCoord(), prevDirsVec[prevDirsIndex], actualIdom, occupiedCoords,grid);
                                         prevDirsVec.pop_back();
                                         if (isInBadSoulutions(grid, badSolutions)) {
                                             inverseConnect(actualIdom, grid, occupiedCoords);
@@ -187,6 +187,11 @@ void Simulation::searchPath() {
                                 }
 
                                 bool wasBreak = false;
+
+                                if(actualIdom == source){
+                                    throw runtime_error("No possible solution!");
+                                }
+
                                 for (int i = 0; i < 4; ++i) {
                                     rotateMore(actualIdom, prevIdom);
                                     if(!isInBadSoulutions(grid, badSolutions)){
@@ -199,8 +204,6 @@ void Simulation::searchPath() {
                                 if(!wasBreak){
                                     stack.push_back(actualIdom);
                                     inverseConnect(actualIdom, grid, occupiedCoords);
-
-
 
                                     if(grid.empty()){
                                         actualIdom = source;
@@ -218,7 +221,16 @@ void Simulation::searchPath() {
 
                             }
                             else{
+                                /*
                                 //Ez még nem 100% de ekkor az történne, hogy a source-ot kéne forgatni ami azt indikálja, hogy nincs megoldás.
+                                actualIdom->printIt();
+                                prevIdom->printIt();
+                                throw runtime_error("No possible solution!");
+                                 */
+                                actualIdom = source;
+                                prevIdom = source;
+
+                                //todo: nincs megoldás?????
                                 throw runtime_error("No possible solution!");
                             }
                         }
@@ -257,7 +269,7 @@ void Simulation::searchPath() {
         }
 
 
-        testPrintContainers(count, elements, grid, stack);
+        testPrintContainers(count, elements, grid, stack, occupiedCoords);
         count++;
     }
     //WHILE VÉGE
@@ -508,22 +520,29 @@ void Simulation::inverseConnect(PipeIdom *idomToDelete, vector<PipeIdom *> &grid
  * @param badSolutions
  * @return Ha igaz akkor benne van, ha nem akkor nincs benne
  */
-bool Simulation::isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions){
+bool Simulation::isInBadSoulutions(vector<PipeIdom*>& grid, vector<vector<PipeIdom*>>& badSolutions){
     for (int i = 0; i < badSolutions.size(); i++)
     {
         if (badSolutions[i].size() != grid.size()) {
-            continue; // Ha nem egyeznek a méretek, ugorj a következő elemre.
+            continue; //Ha nem egyeznek a méretek ugorjon a következőre
         }
 
-        bool allGood = true;
+        bool egyezes = true;
         for (int j = 0; j < grid.size(); j++)
         {
+            /*
             if (badSolutions[i][j]->getCoord() != grid[j]->getCoord() or badSolutions[i][j]->getDirs() != grid[j]->getDirs())
             {
-                allGood = false;
+                egyezes = false;
             }
+             */
+            if(!(*badSolutions[i][j] == *grid[j])){
+                egyezes = false;
+            }
+
         }
-        if(allGood){
+
+        if(egyezes){
             return true;
         }
     }
@@ -815,7 +834,8 @@ vector<PipeIdom *> Simulation::getSolution() {
  * @param grid
  * @param stack
  */
-void Simulation::testPrintContainers(int count, vector<PipeIdom *> elements, vector<PipeIdom *> grid, vector<PipeIdom *> stack) {
+void Simulation::testPrintContainers(int count, vector<PipeIdom *> elements, vector<PipeIdom *> grid,
+                                     vector<PipeIdom *> stack, vector<pair<int, int>> occ_coords) {
     //teszt
     cout << count << "-ik while iteracio!" << endl <<"\n";
 

@@ -39,7 +39,7 @@ private:
     Directions chooseDirection(PipeIdom *idom, vector<pair<int, int>> occ_coords);
     bool canConnect(PipeIdom* actual, PipeIdom* prev, Directions prevsSelectedDir, vector<PipeIdom*> grid);
     void inverseConnect(PipeIdom* idom, vector<PipeIdom*> &grid, vector<pair<int, int>> &occ_coords);
-    bool isInBadSoulutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> badSolutions);
+    bool isInBadSoulutions(vector<PipeIdom*>& grid, vector<vector<PipeIdom*>>& badSolutions);
     PipeIdom* firstLeak(vector<PipeIdom*> grid);
     Directions oppositeSide(Directions side);
     void rotateMore(PipeIdom* &actual, PipeIdom* previous);
@@ -49,7 +49,8 @@ private:
     void addGridToSolutions(vector<PipeIdom*> grid, vector<vector<PipeIdom*>> &badOrGoodSolutions);
 
     //Teszt függvények
-    void testPrintContainers(int count, vector<PipeIdom*> elements, vector<PipeIdom*> grid, vector<PipeIdom*> stack);
+    void testPrintContainers(int count, vector<PipeIdom *> elements, vector<PipeIdom *> grid,
+                             vector<PipeIdom *> stack, vector<pair<int, int>> occ_coords);
 
 
 public:
