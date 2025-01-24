@@ -11,7 +11,6 @@
 #include "Simulation.hpp"
 
 #include <bits/stdc++.h>
-#include <chrono> // Időméréshez szükséges todo: törölni
 #include "set"
 
 using namespace std;
@@ -19,7 +18,7 @@ using namespace std;
 ///Az egész programban a koordináták úgy vannak értelmezve, hogy\n
 ///az ELSŐ koordináta adja meg, hogy hányadik SOR,\n
 ///a MÁSODIK koordináta adja meg, hogy hányadik OSZLOP
-const string fileName = "../testData_nagyKanyargo.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
+const string fileName = "../test_files/Forras3_JAVITOTT.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
 
 void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valves, vector<PipeIdom*> sources, vector<PipeIdom*> sinks){
     for (int i = 0; i < simplePipes.size(); ++i) {
@@ -44,9 +43,6 @@ void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valve
 int main() {
 ///Az adatokat a mellékelt (data.csv) struktúrájú fájlból tudja a program beolvasni.\n
 ///Fejléc kötelező és az adatok sorrendje nem változhat a (data.csv)-hez képest
-
-
-    auto start_time = std::chrono::high_resolution_clock::now(); //todo: törölni
 
 
 //Ezekben a vectorokban vannak eltárolva a rendelkezésre álló idomok.
@@ -131,7 +127,7 @@ int main() {
 
     //TESZT: testData1 adatokkal itt leírva
     //nem használom inkább file-ból olvasok be. (testData1.csv)
-    {
+    /*{
         vector<PipeIdom *> sP;
         vector<PipeIdom *> va;
         vector<PipeIdom *> so;
@@ -166,28 +162,21 @@ int main() {
         vector<PipeIdom*> grid;
 
 
-    }
+    }*/
 
 
 
     Simulation simulation(simplePipes, valves, sources, sinks);
     try {
         simulation.searchPath();
-        for (auto idom: simulation.getSolution()) {
+        /*for (auto idom: simulation.getSolution()) {
             idom->printIt();
-        }
+        }*/
     }
     catch (runtime_error c){
         cout << "searchPath()-ben exception dobodott: ";
         cout << c.what() << endl;
     }
-
-
-    // Befejezési időpont rögzítése
-    auto end_time = std::chrono::high_resolution_clock::now();
-    // Futási idő kiszámítása
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-    std::cout << "A program futasi ideje: " << duration.count() << " ms" << std::endl;
 
     return 0;
 }

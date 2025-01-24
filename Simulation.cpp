@@ -36,18 +36,111 @@ void Simulation::searchPath() {
     elements.insert(elements.end(), valves.begin(), valves.end()); //ezt még nem használjuk
     vector<PipeIdom*> grid;  //használatban lévő elemek
     vector<PipeIdom*> stack;
-    vector<pair<int,int>> occupiedCoords;   //todo: át kéne írni olyan adatszerkezetre amibe 1-nél több ugyanolyan dolgot nem lehet belerakni, mert egyszerre csak 1 idom lehet 1 coorsinátán
+    vector<pair<int,int>> occupiedCoords;
 
     //pair<int,int> actualCoords;
     PipeIdom* actualIdom = source;
     PipeIdom* prevIdom = source;
 
-    occupiedCoords.push_back(source->getCoord());
-    occupiedCoords.push_back(sink->getCoord());
+    for (auto s: sources) {
+        occupiedCoords.push_back(s->getCoord());
+    }
+
+    for (auto s: sinks) {
+        occupiedCoords.push_back(s->getCoord());
+    }
+
+    //Ha az elements üres akkor az a feladat hogy a source-okat kell lepakolni
+    struct EmptySpace{
+        pair<int,int> coord;
+        set<Directions> neighboursDirs; //Amelyik irányba mutatnia kell annak ami ezen a koordinátán lesz.
+        string color;
+    };
+    vector<EmptySpace> emptySpaces;
+    if(elements.empty()){
+        for (auto _sink: sinks) {
+            for (auto sinkDir: _sink->getDirs()) {
+                pair<int, int> neighbourCoord = _sink->getCoord();
+
+                switch (sinkDir) {
+                    case RIGHT:
+                        //coord = {idom->getCoord().first, idom->getCoord().second + 1};
+                        neighbourCoord.second++;
+                        break;
+                    case UP:
+                        //coord = {idom->getCoord().first - 1, idom->getCoord().second};
+                        neighbourCoord.first--;
+                        break;
+                    case LEFT:
+                        //coord = {idom->getCoord().first, idom->getCoord().second - 1};
+                        neighbourCoord.second--;
+                        break;
+                    case DOWN:
+                        //coord = {idom->getCoord().first + 1, idom->getCoord().second};
+                        neighbourCoord.first++;
+                        break;
+                }
+
+                bool isIn = false;
+                for (auto& emptySpace: emptySpaces) {
+                    if(neighbourCoord == emptySpace.coord){
+                        emptySpace.neighboursDirs.insert(oppositeSide(sinkDir));
+                        isIn = true;
+                        break;
+                    }
+                }
+
+                if(!isIn){
+                    EmptySpace eS;
+                    eS.coord = neighbourCoord;
+                    eS.neighboursDirs.insert(oppositeSide(sinkDir));
+                    eS.color = _sink->getColor();
+                    emptySpaces.push_back(eS);
+                }
+            }
+        }
+
+        for (const auto& emptySpace: emptySpaces) {
+            bool doBreak = false;
+            for (auto& _source: sources) {
+
+                if(_source->getColor() == emptySpace.color){
+                    for (int i = 0; i < 4; ++i) {
+                        if(!(_source->getDirs() == emptySpace.neighboursDirs)){
+                            _source->rotate();
+                        }
+                        else{
+                            _source->setCoord(emptySpace.coord.first, emptySpace.coord.second);
+                            solution.push_back(_source);
+                            doBreak = true;
+                            break;
+                        }
+                    }
+                }
+                if(doBreak){
+                    break;
+                }
+
+            }
+            if(doBreak){
+                sources.erase(sources.begin());
+            }
+        }
+
+        if(solution.size()==0){
+            cout << "Nincs source amit le lehetne rakni!" << endl;
+        }
+        for (auto idom: solution) {
+            idom->printIt();
+        }
+
+        return;
+    }
 
 
     int count = 1;
     while (solution.empty()){
+
         bool sinkConnectedAndHaveOpen = false;
         //1. éés 2. feltételek ellenőrzése:
         if(isSinkConnected(grid)){  //todo: feltételezzük hogy a source nem úgy van megadva hogy egy kimenete van és az egyből kapcsolódik a sink egyetlen kimenetéhez
@@ -98,6 +191,8 @@ void Simulation::searchPath() {
 
                     if(grid.size() == 0){
                         //ilyen eset nem lehet
+                        actualIdom = source;
+                        prevIdom = source;
                     }
                     else if(grid.size() == 1) {
                         actualIdom = grid[0];
@@ -117,8 +212,25 @@ void Simulation::searchPath() {
                     prevIdom = actualIdom;
                     actualIdom = elements[0];
                     elements.erase(elements.begin());
-                    connect(prevIdom->getCoord(), chooseDirection(prevIdom, occupiedCoords), actualIdom, occupiedCoords,
-                            grid);
+
+                    vector<Directions> possibleSolution = chooseDirection(prevIdom, occupiedCoords);
+                    if(possibleSolution.empty()){
+                        throw runtime_error("chooseDirection ures vectorral tert vissza");
+                    }
+                    int prevDirIndex = -1;
+                    for (int i = 0; i < possibleSolution.size(); ++i) {
+                        if(canConnect(actualIdom,prevIdom, possibleSolution[i], grid)){
+                            prevDirIndex = i;
+                            break;
+                        }
+                    }
+
+                    if(prevDirIndex == -1){
+                        throw runtime_error("A canConnect nem talalt jot");
+                    }
+
+                    connect(prevIdom->getCoord(), possibleSolution[prevDirIndex],
+                            actualIdom,occupiedCoords,grid);
                     //todo: indul előlről a while
                 }
                 else{
@@ -132,17 +244,22 @@ void Simulation::searchPath() {
                         for (int i = 0; i < stack.size(); ++i) {
                             stackIdomIndex = stack.size()-1-i;
                             actualIdom = stack[stackIdomIndex];
+
+                            set<Directions> prevDirsSet = prevIdom->getDirs();
+                            vector<Directions> prevDirsVec(prevDirsSet.begin(), prevDirsSet.end());
+
+
                             for (int j = 0; j < 4; ++j) {
                                 int prevDirsIndex;
 
-                                set<Directions> prevDirsSet = prevIdom->getDirs();
-                                vector<Directions> prevDirsVec(prevDirsSet.begin(), prevDirsSet.end());
+
 
                                 if (!prevDirsVec.empty()) {
                                     prevDirsIndex = prevDirsVec.size() - 1;
 
                                     if (canConnect(actualIdom, prevIdom, prevDirsVec[prevDirsIndex], grid)) {
-                                        connect(prevIdom->getCoord(), prevDirsVec[prevDirsIndex], actualIdom, occupiedCoords,grid);
+                                        connect(prevIdom->getCoord(), prevDirsVec[prevDirsIndex], actualIdom,
+                                                occupiedCoords, grid);
                                         prevDirsVec.pop_back();
                                         if (isInBadSoulutions(grid, badSolutions)) {
                                             inverseConnect(actualIdom, grid, occupiedCoords);
@@ -221,12 +338,6 @@ void Simulation::searchPath() {
 
                             }
                             else{
-                                /*
-                                //Ez még nem 100% de ekkor az történne, hogy a source-ot kéne forgatni ami azt indikálja, hogy nincs megoldás.
-                                actualIdom->printIt();
-                                prevIdom->printIt();
-                                throw runtime_error("No possible solution!");
-                                 */
                                 actualIdom = source;
                                 prevIdom = source;
 
@@ -269,7 +380,11 @@ void Simulation::searchPath() {
         }
 
 
-        testPrintContainers(count, elements, grid, stack, occupiedCoords);
+        //testPrintContainers(count, elements, grid, stack, occupiedCoords);
+        cout << "count" << count << endl;
+       /* if(badSolutions.size()==13){
+            break;
+        }*/
         count++;
     }
     //WHILE VÉGE
@@ -277,11 +392,15 @@ void Simulation::searchPath() {
 
     //sloution kiiratása
     cout<<"-~-~-~SOLUTION~-~-~-"<<endl;
-    source->printIt();
+    for (auto s: sources) {
+        s->printIt();
+    }
     for (auto idom: solution) {
         idom->printIt();
     }
-    sink->printIt();
+    for (auto s: sinks) {
+        s->printIt();
+    }
     cout<<"-~-SOLUTION VEGE-~-"<<endl;
 }
 
@@ -296,38 +415,39 @@ void Simulation::searchPath() {
  * @param prevCoord A prevIdom coordinátája.
  * @param prevDir Azt adja meg, hogy a prevIdom melyik dir-jéhez akarunk connectelni.\n Ehez MAJDNEM mindig a chooseDirection() fv-t kell meghívni
  * @param actual Ez az az idom amit connectelni szeretnénk.
+ * @param whichCase Ha false akkor a chooseDir-es ha true akkor az van amikor biztosan tudjuk melyik dir-t akarjuk.
  * @warning "Ha connectelni szeretnénk, akkor biztosan tudunk is." Vagyis ezt a függvényt csak akkor szabad meghívni ha biztosan el tudja végezni a feladatát.
  */
 void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom *&actual,
                          vector<pair<int, int >> &occ_coords, vector<PipeIdom *> &grid) { //todo: tesztelni kellene majd
-    switch (prevDir) {
-        case RIGHT:
-            actual->setCoord(prevCoord.first, prevCoord.second+1);
-            while (!actual->getDirs().contains(LEFT)) {
-                actual->rotate();
-            }
-            break;
-        case UP:
-            actual->setCoord(prevCoord.first-1, prevCoord.second);
-            while (!actual->getDirs().contains(DOWN)) {
-                actual->rotate();
-            }
-            break;
-        case LEFT:
-            actual->setCoord(prevCoord.first, prevCoord.second-1);
-            while (!actual->getDirs().contains(RIGHT)) {
-                actual->rotate();
-            }
-            break;
-        case DOWN:
-            actual->setCoord(prevCoord.first+1, prevCoord.second);
-            while (!actual->getDirs().contains(UP)) {
-                actual->rotate();
-            }
-            break;
-    }
-    occ_coords.push_back(actual->getCoord());
-    grid.push_back(actual);
+        switch (prevDir) {
+            case RIGHT:
+                actual->setCoord(prevCoord.first, prevCoord.second + 1);
+                while (!actual->getDirs().contains(LEFT)) {
+                    actual->rotate();
+                }
+                break;
+            case UP:
+                actual->setCoord(prevCoord.first - 1, prevCoord.second);
+                while (!actual->getDirs().contains(DOWN)) {
+                    actual->rotate();
+                }
+                break;
+            case LEFT:
+                actual->setCoord(prevCoord.first, prevCoord.second - 1);
+                while (!actual->getDirs().contains(RIGHT)) {
+                    actual->rotate();
+                }
+                break;
+            case DOWN:
+                actual->setCoord(prevCoord.first + 1, prevCoord.second);
+                while (!actual->getDirs().contains(UP)) {
+                    actual->rotate();
+                }
+                break;
+        }
+        occ_coords.push_back(actual->getCoord());
+        grid.push_back(actual);
 }
 
 /**
@@ -338,7 +458,9 @@ void Simulation::connect(pair<int, int> prevCoord, Directions prevDir, PipeIdom 
  * @param occ_coords occupiedCoords vector
  * @warning Azt nem vizsgálja hogy ha lerakunk egy idom-ot akkor annak a többi kimenete nem sérti-e a szomszédos koordinátán álló idomokat.
  */
-Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> occ_coords) {
+vector<Directions> Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> occ_coords) {
+    vector<Directions> possibleDirs;
+
     pair<int, int> coord;
     for (auto dir : idom->getDirs()) { // Vizsgáld végig az összes irányt
         switch (dir) {
@@ -364,11 +486,11 @@ Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> oc
             }
         }
         if (!isInOcc) {
-            return dir;
+            possibleDirs.push_back(dir);
         }
     }
-    //Ha nem talál szabad irányt, kivételt dob
-    throw std::runtime_error("No available direction to connect!");
+
+    return possibleDirs;
 }
 
 /**
@@ -386,9 +508,9 @@ Directions Simulation::chooseDirection(PipeIdom *idom, vector<pair<int, int>> oc
  */
 bool Simulation::canConnect(PipeIdom *actual, PipeIdom *prev, Directions prevsSelectedDir, vector<PipeIdom *> grid) {//todo: tesztelni kéne
     vector<PipeIdom*> allIdoms;
-    allIdoms.push_back(source);
+    allIdoms = sources;
     allIdoms.insert(allIdoms.end(), grid.begin(), grid.end());
-    allIdoms.push_back(sink);
+    allIdoms.insert(allIdoms.end(), sinks.begin(), sinks.end());
 
     pair<int, int> actualCoord = prev->getCoord();  //itt azert a prevCoord-al lesz egyenlo mivel kesobb ehez képest változtatjuk
     //beállítja az actualCoordot attól függően hogy a prev melyik oldalán lesz az actual
@@ -634,9 +756,9 @@ bool Simulation::haveThatDirection(PipeIdom *lmnt, Directions dir) { //todo:lehe
 PipeIdom* Simulation::firstLeak(vector<PipeIdom *> grid) { ///todo: teszt. Majd ha több source és sink lesz, akkor a push_backeket javítani
     vector<PipeIdom*>allElements;
 
-    allElements.push_back(source);
+    allElements = sources;
     allElements.insert(allElements.end(), grid.begin(), grid.end());
-    allElements.push_back(sink);
+    allElements.insert(allElements.end(), sinks.begin(), sinks.end());
 
     for (auto element: allElements) {
         if (!isAllConnected(allElements, element)) {
@@ -665,59 +787,62 @@ Directions Simulation::oppositeSide(Directions side) {
 }
 
 ///Kritérium_1 \n Azt nézi meg hogy a sink összes dir-jéhez van e valami connectelve a gridben
-bool Simulation::isSinkConnected(vector<PipeIdom *> grid) { //todo: ez csak akkor működik ha egy sink idom van a rendszerben
+bool Simulation::isSinkConnected(vector<PipeIdom *> grid) { //todo: működik több sinkre is??? elvileg igen de test
     bool rightOk = false;
     bool upOk = false;
     bool leftOk = false;
     bool downOk = false;
 
-    for (auto sinkDir: sink->getDirs()) {
-        pair<int, int> neighbourCoord = sink->getCoord();
-        switch (sinkDir) {
-            case RIGHT:
-                neighbourCoord.second++;
-                for (auto idom: grid) {
-                    if((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(RIGHT)))){
-                        rightOk = true;
+
+    for (auto s: sinks) {
+        for (auto sinkDir: s->getDirs()) {
+            pair<int, int> neighbourCoord = s->getCoord();
+            switch (sinkDir) {
+                case RIGHT:
+                    neighbourCoord.second++;
+                    for (auto idom: grid) {
+                        if ((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(RIGHT)))) {
+                            rightOk = true;
+                        }
                     }
-                }
-                if(!rightOk){
-                    return false;
-                }
-                break;
-            case UP:
-                neighbourCoord.first--;
-                for (auto idom: grid) {
-                    if((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(UP)))){
-                        upOk = true;
+                    if (!rightOk) {
+                        return false;
                     }
-                }
-                if(!upOk){
-                    return false;
-                }
-                break;
-            case LEFT:
-                neighbourCoord.second--;
-                for (auto idom: grid) {
-                    if((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(LEFT)))){
-                        leftOk = true;
+                    break;
+                case UP:
+                    neighbourCoord.first--;
+                    for (auto idom: grid) {
+                        if ((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(UP)))) {
+                            upOk = true;
+                        }
                     }
-                }
-                if(!leftOk){
-                    return false;
-                }
-                break;
-            case DOWN:
-                neighbourCoord.first++;
-                for (auto idom: grid) {
-                    if((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(DOWN)))){
-                        downOk = true;
+                    if (!upOk) {
+                        return false;
                     }
-                }
-                if(!downOk){
-                    return false;
-                }
-                break;
+                    break;
+                case LEFT:
+                    neighbourCoord.second--;
+                    for (auto idom: grid) {
+                        if ((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(LEFT)))) {
+                            leftOk = true;
+                        }
+                    }
+                    if (!leftOk) {
+                        return false;
+                    }
+                    break;
+                case DOWN:
+                    neighbourCoord.first++;
+                    for (auto idom: grid) {
+                        if ((idom->getCoord() == neighbourCoord) and (idom->getDirs().contains(oppositeSide(DOWN)))) {
+                            downOk = true;
+                        }
+                    }
+                    if (!downOk) {
+                        return false;
+                    }
+                    break;
+            }
         }
     }
     return true;

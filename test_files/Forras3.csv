@@ -1,0 +1,13 @@
+TYPE,COUNT,DIRECTIONS,COLOR,X,Y
+sink,1,U,BLUE,0,0
+sink,1,L,BLUE,0,2
+sink,1,R,GREEN,1,0
+sink,1,L,GREEN,1,2
+sink,1,D,RED,2,1
+sink,1,R,RED,3,0
+sink,1,L,RED,3,2
+sink,1,U,RED,4,1
+source,1,D,BLUE,0,0
+source,1,D,BLUE,0,0
+source,1,UD,GREEN,0,0
+source,1,LDRU,RED,0,0

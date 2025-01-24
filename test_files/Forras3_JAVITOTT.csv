@@ -1,0 +1,6 @@
+TYPE,COUNT,DIRECTIONS,COLOR,X,Y
+sink,1,LD,BLUE,0,2
+sink,1,U,BLUE,0,0
+source,1,L,BLUE,0,0
+source,1,D,BLUE,0,0
+source,1,L,BLUE,0,0
