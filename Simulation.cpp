@@ -102,6 +102,7 @@ void Simulation::searchPath() {
 
         for (const auto& emptySpace: emptySpaces) {
             bool doBreak = false;
+            PipeIdom* saveSource;
             for (auto& _source: sources) {
 
                 if(_source->getColor() == emptySpace.color){
@@ -113,6 +114,7 @@ void Simulation::searchPath() {
                             _source->setCoord(emptySpace.coord.first, emptySpace.coord.second);
                             solution.push_back(_source);
                             doBreak = true;
+                            saveSource = _source;
                             break;
                         }
                     }
@@ -123,7 +125,8 @@ void Simulation::searchPath() {
 
             }
             if(doBreak){
-                sources.erase(sources.begin());
+
+                sources.erase(std::remove(sources.begin(), sources.end(), saveSource), sources.end());
             }
         }
 
