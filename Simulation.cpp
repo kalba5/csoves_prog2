@@ -383,11 +383,6 @@ void Simulation::searchPath() {
         }
 
 
-        //testPrintContainers(count, elements, grid, stack, occupiedCoords);
-        cout << "count" << count << endl;
-       /* if(badSolutions.size()==13){
-            break;
-        }*/
         count++;
     }
     //WHILE VÉGE

@@ -1,0 +1,7 @@
+TYPE,COUNT,DIRECTIONS,COLOR,X,Y
+simplePipe,1,UD,,,
+simplePipe,1,ULR,,,
+simplePipe,1,UL,,,
+source, 1,R,GREEN, 0, 0
+source, 1,L,GREEN, 0, 2
+sink, 1,L,GREEN,2,2

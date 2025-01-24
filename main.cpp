@@ -18,7 +18,7 @@ using namespace std;
 ///Az egész programban a koordináták úgy vannak értelmezve, hogy\n
 ///az ELSŐ koordináta adja meg, hogy hányadik SOR,\n
 ///a MÁSODIK koordináta adja meg, hogy hányadik OSZLOP
-const string fileName = "../test_files/Forras3_JAVITOTT.csv";  //ne felejtsd el belerakni a build mappába a file-t 😊
+const string fileName = "../test_files/NagyPalya.csv";  //ne felejtsd el belerakni a build mappába a file-t
 
 void printAllPipeElements(vector<PipeIdom*> simplePipes, vector<PipeIdom*> valves, vector<PipeIdom*> sources, vector<PipeIdom*> sinks){
     for (int i = 0; i < simplePipes.size(); ++i) {
@@ -123,10 +123,9 @@ int main() {
     printAllPipeElements(simplePipes, valves, sources, sinks);
     cout<<"Print All Pipe Elements VEGE" << endl;
 
-//todo: teszt, törölni
 
     //TESZT: testData1 adatokkal itt leírva
-    //nem használom inkább file-ból olvasok be. (testData1.csv)
+    //nem használom
     /*{
         vector<PipeIdom *> sP;
         vector<PipeIdom *> va;
@@ -160,8 +159,6 @@ int main() {
         sourceSet.insert(RIGHT);
         Source* source = new Source(sourceSet, 0, -1, "R");
         vector<PipeIdom*> grid;
-
-
     }*/
 
 

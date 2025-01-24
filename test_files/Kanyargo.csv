@@ -1,4 +1,4 @@
 TYPE,COUNT,DIRECTIONS,COLOR,X,Y
-simplePipe,10,UL,,,
-source, 1, R, RED, 0, 1
-sink, 1, L, RED,0,0
+simplePipe,20,UL,,,
+source, 1, R,RED, 0, 1
+sink, 1, L,RED,0,0
